@@ -13,9 +13,7 @@ The calculations of the lorenz attractor is as follows:
 1. Run `make`
 2. Run `./lorenz`
 
-## Usage
-
-Key bindings:
+## Key bindings:
 
 - UP ARROW: Rotate X axis +
 - DOWN ARROW: Rotate X axis -

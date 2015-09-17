@@ -3,8 +3,11 @@
  * Edward Zhu
  * 
  *
- *  Many basic functions used throughout transfered from gears assignment.
+ *  Many basic functions used throughout transfered 
+ *  from gears assignment.
  *
+ *  Time it took to complete: 7 hours
+ * 
  */
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -12,14 +15,12 @@
 #include <GL/glut.h>
 #endif
 #include <stdlib.h>
-#include <time.h>
 #include <stdio.h>
 #include <string.h>
 
-
-int num_steps = 200000;
-double th=0;  //  Rotation angle
-float pts[200000][3];
+// increase num_steps to draw more of the lorenz attractor
+int num_steps = 100000;
+float pts[100000][3];
 
 /*  Lorenz Parameters from moodle lorenz.c */
 double s  = 10;
@@ -61,7 +62,6 @@ static void basic_lorenz(void) {
 void output( int text_pos, char *string)
 {
   glColor3f( 255, 255, 255 );
-  // glRasterPos2f(500, 5);
   glWindowPos2i(5 , text_pos);
   int len, i;
   len = (int)strlen(string);
@@ -70,6 +70,7 @@ void output( int text_pos, char *string)
   }
 }
 
+// base variables of view positions and rotation
 static GLfloat view_rotx = 20.0, view_roty = 50.0, view_rotz = 0.0;
 static GLfloat view_posz = 50.0;
 
@@ -87,18 +88,25 @@ void draw() {
   int i = 0;
   
   while( i < iter && i < num_steps ) {
+    // Color in the line to differentiate the animation
     glColor3fv(pts[i]);
+    // creates the next vertex
     glVertex3fv(pts[i++]);
   }
   glEnd();
   
+  // Keep adding the interation increment until you reach the 
+  // total number of steps allowed, at which, it stops.
   if( iter < num_steps ) {
-    if( iter + iter_increment > num_steps ) iter = num_steps;
-    else iter+=iter_increment;
+    if( iter + iter_increment > num_steps ) 
+      iter = num_steps;
+    else 
+      iter+=iter_increment;
   }
   
   glFlush();
 
+  // Instructions 
   output(65, "Use ARROW KEYS to move around");
   output(45, "R: Restart animation            F: Finish animation");
   output(25, "T: Animation speed +         G: Animation speed -");
@@ -133,6 +141,11 @@ static void idle(void) {
 // Key strokes that add user interation such as zoom, animation speed
 // and restarting or finish the animation
 // transfered over gears assignment
+// 
+// reset - make the iteration count back to zero
+// finish - make iter the max number of steps
+// speed up and slow down - just change the iter_increment value
+// zoom in and out - increase/decrease the z position value
 static void key(unsigned char k, int x, int y) {
   switch (k) {
     case 'r':
@@ -196,7 +209,6 @@ int main(int argc,char* argv[]) {
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(600, 600);
   glutCreateWindow("Lorenz Attractor By Edward Zhu");
-  // init(argc, argv);
 
   glutDisplayFunc(draw);
   glutReshapeFunc(reshape);
