@@ -13,7 +13,6 @@
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
-#include <GL/glew.h>
 #endif
 #include <stdlib.h>
 #include <stdio.h>
