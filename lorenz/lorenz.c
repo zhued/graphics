@@ -13,9 +13,11 @@
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
+#include <GL/glew.h>
 #endif
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 
 // increase num_steps to draw more of the lorenz attractor
