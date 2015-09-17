@@ -88,8 +88,6 @@ void draw() {
   int i = 0;
   
   while( i < iter && i < num_steps ) {
-    // Color in the line to differentiate the animation
-    glColor3fv(pts[i]);
     // creates the next vertex
     glVertex3fv(pts[i++]);
   }
