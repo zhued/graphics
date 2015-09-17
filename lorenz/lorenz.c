@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <string.h>
 
+void glWindowPos2i(int, int);
 // increase num_steps to draw more of the lorenz attractor
 int num_steps = 100000;
 float pts[100000][3];
