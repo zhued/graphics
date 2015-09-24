@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <string.h>
 
+// linux throws error without initializing this here
 void glWindowPos2i(int, int);
 // increase num_steps to draw more of the lorenz attractor
 int num_steps = 100000;
@@ -86,6 +87,7 @@ void draw() {
     glRotatef(view_roty, 0.0, 1.0, 0.0);
     glRotatef(view_rotz, 0.0, 0.0, 1.0);
 
+  // Initialize line strip
   glBegin(GL_LINE_STRIP);
   int i = 0;
   
@@ -134,6 +136,9 @@ static void reshape(int width, int height) {
 // if nothing is happening, then constantly increment so the line keeps
 // drawing
 static void idle(void) {
+  s  = 10;
+  b  = 2.6666;
+  r  = 28;
   iter+=iter_increment;
   glutPostRedisplay();
 }
@@ -148,6 +153,8 @@ static void idle(void) {
 // zoom in and out - increase/decrease the z position value
 static void key(unsigned char k, int x, int y) {
   switch (k) {
+    case 27:
+      exit(0);
     case 'r':
       iter = 0;
       break;
@@ -160,6 +167,28 @@ static void key(unsigned char k, int x, int y) {
     case 'g':
       if( iter_increment - 5 >- 0 ) iter_increment -= 5;
       break;
+    case 'q':
+      s += 20;
+      b += 5;
+      r += 5;
+      break;
+    case 'a':
+      if( s - 20 >- 0 ) s -= 20;
+      if( b - 5 >- 0 ) b -= 5;
+      if( r - 5 >- 0 ) r -= 5;
+      break;
+    // case 'c':
+    //   b += 5;
+    //   break;
+    // case 'v':
+    //   if( b - 5 >- 0 ) b -= 5;
+    //   break;
+    // case 'b':
+    //   r += 5;
+    //   break;
+    // case 'n':
+    //   if( r - 5 >- 0 ) r -= 5;
+    //   break;
     case 'e':
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
@@ -206,10 +235,12 @@ int main(int argc,char* argv[]) {
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
   
+  // Creation of window parameters
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(600, 600);
   glutCreateWindow("Lorenz Attractor By Edward Zhu");
 
+  // Displaying everything.
   glutDisplayFunc(draw);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(key);

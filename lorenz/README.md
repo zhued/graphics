@@ -11,7 +11,7 @@ The calculations of the lorenz attractor is as follows:
 ## How to build
 
 1. Run `make`
-2. Run `./lorenz`
+2. Run `./hw2`
 
 ## Key bindings:
 
