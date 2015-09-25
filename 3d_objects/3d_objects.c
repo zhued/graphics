@@ -1,6 +1,7 @@
 /*
  *  3D Objects
  *  Edward Zhu
+ *  CSCI 4229
  *
  *  Code inspired and modified from ex9 from moodle.
  *
@@ -330,6 +331,7 @@ void display()
    Print("Angle=%d,%d  Dim=%.1f FOV=%d Projection=%s",th,ph,dim,fov,mode?"Perpective":"Orthogonal");
    //  Render the scene and make it visible
    glFlush();
+   glGetError();
    glutSwapBuffers();
 }
 
@@ -413,7 +415,7 @@ int main(int argc,char* argv[])
    //  Request double buffered, true color window with Z buffering at 600x600
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
    glutInitWindowSize(700,700);
-   glutCreateWindow("neighborhood");
+   glutCreateWindow("Edward Zhu - 3D Neighborhood");
    //  Set callbacks
    glutDisplayFunc(display);
    glutReshapeFunc(reshape);

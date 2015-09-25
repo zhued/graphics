@@ -1,67 +1,42 @@
-/*
+ /*
  * Lorenz Attractor
  * Edward Zhu
  * 
  *
- *  Many basic functions used throughout transfered 
- *  from gears assignment.
+ * lorenz calculation based on lorenz.c
+ * other functions modified 
  *
  *  Time it took to complete: 7 hours
- * 
+ *  
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#define GL_GLEXT_PROTOTYPES
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 
-// linux throws error without initializing this here
-void glWindowPos2i(int, int);
-// increase num_steps to draw more of the lorenz attractor
+
+//  Globals
+int th=0;       // view angle
+int ph=0;       // view angle
+double z=0;     // z variable
+double w=1;     // w variable
+double dim=2;   // Dimension of orthogonal box
 int num_steps = 100000;
-float pts[100000][3];
 
-/*  Lorenz Parameters from moodle lorenz.c */
-double s  = 10;
-double b  = 2.6666;
-double r  = 28;
+float s = 10;
+float b = 2.666666;
+float r = 28;
 
-int iter = 0;
-int iter_increment = 10;
-
-// Basic function of the lorenz attractor converted to work with
-// OpenGL functionalities
-static void basic_lorenz(void) {
-  int i;
-  /*  Coordinates  */
-  float x = pts[0][0] = 1;
-  float y = pts[0][1] = 1;
-  float z = pts[0][2] = 1;
-  /*  Time step  */
-  float dt = 0.001;
-
-  for (i=0;i<num_steps-1;i++)
-  { 
-    float dx = s*(y-x);
-    float dy = x*(r-z)-y;
-    float dz = x*y - b*z;
-    x += dt*dx;
-    y += dt*dy;
-    z += dt*dz;
-    
-    pts[i+1][0] = x;
-    pts[i+1][1] = y;
-    pts[i+1][2] = z;
-    
-  }
-}
-
-// Output information onto the screen for the user to interact
-// with the animation
+/*
+ *  Output information onto the screen for the user to interact
+ *   with the animation
+ */
 void output( int text_pos, char *string)
 {
   glColor3f( 255, 255, 255 );
@@ -73,180 +48,157 @@ void output( int text_pos, char *string)
   }
 }
 
-// base variables of view positions and rotation
-static GLfloat view_rotx = 20.0, view_roty = 50.0, view_rotz = 0.0;
-static GLfloat view_posz = 50.0;
+/*
+ *  Display the scene with the Lorenz Attractor
+ */
+void display()
+{
+    //  Clear and reset
+    glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+    
+    // Set project and rotation andles
+    glOrtho(-1, 1, -1, 1, -10, 10);
+    glRotated(ph,1,0,0);
+    glRotated(th,0,1,0);
+    
+    // Draw line string accoring to Lorenz
+    glBegin(GL_LINE_STRIP);
+    
+    float x = 1, y = 1, z = 1;
+    int i;    
+    float dt = .001;
 
-// draw out the lorenz attractor
-void draw() {
+    // Basic function of the lorenz attractor converted to work with
+    // OpenGL functionalities
+    for (i = 0; i < num_steps; i++) {    
+        
+        float dx = s*(y-x);
+        float dy = x*(r-z) - y;
+        float dz = x*y - b*z;
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
-  glPushMatrix();  
-    glRotatef(view_rotx, 1.0, 0.0, 0.0);
-    glRotatef(view_roty, 0.0, 1.0, 0.0);
-    glRotatef(view_rotz, 0.0, 0.0, 1.0);
+        x += dt*dx;
+        y += dt*dy;
+        z += dt*dz;        
+        // Make attractor fit in default view
+        glVertex4f(x*.05, y*.05, z*.05, w); 
+    }
 
-  // Initialize line strip
-  glBegin(GL_LINE_STRIP);
-  int i = 0;
-  
-  while( i < iter && i < num_steps ) {
-    // creates the next vertex
-    glVertex3fv(pts[i++]);
-  }
-  glEnd();
-  
-  // Keep adding the interation increment until you reach the 
-  // total number of steps allowed, at which, it stops.
-  if( iter < num_steps ) {
-    if( iter + iter_increment > num_steps ) 
-      iter = num_steps;
-    else 
-      iter+=iter_increment;
-  }
-  
-  glFlush();
+    glEnd();
 
-  // Instructions 
-  output(65, "Use ARROW KEYS to move around");
-  output(45, "R: Restart animation            F: Finish animation");
-  output(25, "T: Animation speed +         G: Animation speed -");
-  output(5, "E: Zoom Z axis +                D: Zoom Z axis -");
-
-  glutSwapBuffers();
-  glPopMatrix();
+    // Instructions 
+    output(25, "Use ARROW KEYS to move around");
+    output(5, "S,B,R: Incease lorenz params        s,b,r: Decrease lorenz params ");
+    
+    glFlush();
+    glutSwapBuffers();
 }
 
+/*
+ *  GLUT calls this routine when an arrow key is pressed
+ */
+void special(int key,int x,int y)
+{
+   //  Arrow Keys for changing angles
+   if (key == GLUT_KEY_RIGHT)
+      th += 5;
+   else if (key == GLUT_KEY_LEFT)
+      th -= 5;
+   else if (key == GLUT_KEY_UP)
+      ph += 5;
+   else if (key == GLUT_KEY_DOWN)
+      ph -= 5;
 
-// new window size or exposure
-// transfered over gears assignment
-static void reshape(int width, int height) {
-  GLfloat h = (GLfloat) height / (GLfloat) width;
-
-  glViewport(0, 0, (GLint) width, (GLint) height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum(-5.0, 5.0, -h*2, h*2, 1.0, 300.0);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glTranslatef(0.0, 0.0, -60.0);
+   // Angles
+   th %= 360;
+   ph %= 360;
+   glutPostRedisplay();
 }
 
-// if nothing is happening, then constantly increment so the line keeps
-// drawing
-static void idle(void) {
-  s  = 10;
-  b  = 2.6666;
-  r  = 28;
-  iter+=iter_increment;
-  glutPostRedisplay();
-}
-
-// Key strokes that add user interation such as zoom, animation speed
-// and restarting or finish the animation
-// transfered over gears assignment
-// 
-// reset - make the iteration count back to zero
-// finish - make iter the max number of steps
-// speed up and slow down - just change the iter_increment value
-// zoom in and out - increase/decrease the z position value
-static void key(unsigned char k, int x, int y) {
-  switch (k) {
-    case 27:
+/*
+ *  GLUT calls this routine when a key is pressed
+ */
+void key(unsigned char ch,int x,int y)
+{
+   //  Exit on ESC
+   if (ch == 27)
       exit(0);
-    case 'r':
-      iter = 0;
-      break;
-    case 'f':
-      iter = num_steps;
-      break;
-    case 't':
-      iter_increment += 5;
-      break;
-    case 'g':
-      if( iter_increment - 5 >- 0 ) iter_increment -= 5;
-      break;
-    case 'q':
-      s += 20;
-      b += 5;
-      r += 5;
-      break;
-    case 'a':
-      if( s - 20 >- 0 ) s -= 20;
-      if( b - 5 >- 0 ) b -= 5;
-      if( r - 5 >- 0 ) r -= 5;
-      break;
-    // case 'c':
-    //   b += 5;
-    //   break;
-    // case 'v':
-    //   if( b - 5 >- 0 ) b -= 5;
-    //   break;
-    // case 'b':
-    //   r += 5;
-    //   break;
-    // case 'n':
-    //   if( r - 5 >- 0 ) r -= 5;
-    //   break;
-    case 'e':
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-      view_posz -= 1;
-      gluLookAt(0,0,view_posz,0.0,0.0,0.0,0.0,1.0,0.0);
-      break;
-    case 'd':
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-      view_posz += 1;
-      gluLookAt(0,0,view_posz,0.0,0.0,0.0,0.0,1.0,0.0);
-      break;
-    default:
-      return;
-  }
-  glutPostRedisplay();
+   //  Reset view angle
+   else if (ch == '0'){
+      th = ph = 0;
+      s = 10;
+      b = 2.666666;
+      r = 28;
+   }
+   //  Decrease s by 1
+   else if (ch == 's'){
+      s -= 1;
+   }
+   //  Increase s by 1
+   else if (ch == 'S'){
+      s += 1;
+   }
+   //  Decrease b by .1
+   else if (ch == 'b'){
+      b -= .2;
+   }
+   //  Increase b by .1
+   else if (ch == 'B'){
+      b += .2;
+   }
+   //  Decrease r by 1
+   else if (ch == 'r'){
+      r -= 1;
+   }
+   //  Increase r by 1
+   else if (ch == 'R'){
+      r += 1;
+   }
+   glutPostRedisplay();
 }
 
-// change view angle - key presses rotate by 5
-// transfered over gears assignment
-static void special(int k, int x, int y) {
-  switch (k) {
-    case GLUT_KEY_UP:
-      view_rotx += 5.0;
-      break;
-    case GLUT_KEY_DOWN:
-      view_rotx -= 5.0;
-      break;
-    case GLUT_KEY_LEFT:
-      view_roty += 5.0;
-      break;
-    case GLUT_KEY_RIGHT:
-      view_roty -= 5.0;
-      break;
-    default:
-      return;
-  }
-  glutPostRedisplay();
+
+
+/*
+ *  GLUT calls this routine when the window is resized
+ */
+void reshape(int width,int height)
+{
+   //  Ratio of the width to the height of the window
+   double w2h = (height>0) ? (double)width/height : 1;
+   //  Set the viewport to the entire window
+   glViewport(0,0, width,height);
+   //  Tell OpenGL we want to manipulate the projection matrix
+   glMatrixMode(GL_PROJECTION);
+   //  Undo previous transformations
+   glLoadIdentity();
+   //  Orthogonal projection box adjusted for the
+   //  aspect ratio of the window
+   glOrtho(-dim*w2h,+dim*w2h, -dim,+dim, -dim,+dim);
+   //  Switch to manipulating the model matrix
+   glMatrixMode(GL_MODELVIEW);
+   //  Undo previous transformations
+   glLoadIdentity();
 }
 
-// Mostly transfered over from gears assignment.
-int main(int argc,char* argv[]) {
-  basic_lorenz();
-  glutInit(&argc,argv);
-  glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-  
-  // Creation of window parameters
-  glutInitWindowPosition(0, 0);
-  glutInitWindowSize(600, 600);
-  glutCreateWindow("Lorenz Attractor By Edward Zhu");
+/*
+ *  Start up GLUT and tell it what to do
+ */
+int main(int argc,char* argv[])
+{
+  //  Initialize GLUT and display mores
+   glutInit(&argc,argv);
+   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 
-  // Displaying everything.
-  glutDisplayFunc(draw);
-  glutReshapeFunc(reshape);
-  glutKeyboardFunc(key);
-  glutSpecialFunc(special);
-  glutIdleFunc(idle);
-  
-  glutMainLoop();
-  return 0;              /* ANSI C requires main to return int. */
+   //  Creates a window
+   glutInitWindowSize(500,500);
+   glutCreateWindow("Lorenz Attractor - Edward Zhu");
+   
+   // Displaying everything.
+   glutDisplayFunc(display);
+   glutReshapeFunc(reshape);
+   glutSpecialFunc(special);
+   glutKeyboardFunc(key);
+   glutMainLoop();
+   return 0;
 }

@@ -19,9 +19,5 @@ The calculations of the lorenz attractor is as follows:
 - DOWN ARROW: Rotate X axis -
 - LEFT ARROW: Rotate Y axis +
 - RIGHT ARROW: Rotate Y axis -
-- r: Restart animation
-- f: Finish animation
-- t: Animation speed +
-- g: Animation speed -
-- e: Zoom Z axis +
-- d: Zoom Z axis -
+- S,B,R: Incease lorenz params        
+- s,b,r: Decrease lorenz params

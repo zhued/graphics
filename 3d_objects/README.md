@@ -1,4 +1,6 @@
 # 3d Objects
+# Edward Zhu
+# CSCI 4229
 
 Many basic functions used throughout inspired and influenced from ex9 example package on Moodle.
 
