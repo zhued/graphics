@@ -1,5 +1,5 @@
 /*
- *  Lighting - Edward Zhu
+ *  Lighting and Texture - Edward Zhu
  *
  *  Demonstrates basic lighting with a house. 
  *  Code skeleton taken from and inspired by example 13 from moodle.
@@ -595,7 +595,7 @@ int main(int argc,char* argv[])
    //  Request double buffered, true color window with Z buffering at 600x600
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
    glutInitWindowSize(600,600);
-   glutCreateWindow("Lighting - Edward Zhu");
+   glutCreateWindow("Lighting and Texture - Edward Zhu");
    //  Set callbacks
    glutDisplayFunc(display);
    glutReshapeFunc(reshape);

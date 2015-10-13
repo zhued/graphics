@@ -1,9 +1,9 @@
-# Lighting - HW5
+# Lighting and Texture - HW6
 ## Edward Zhu
 ## CSCI 4229
 
 Basic Code structure and skeleton from ex13 (lighting) from moodle.
-Scene is slightly changed from my code from my HW4 (projections).
+Scene is slightly changed from my code from my HW5 (projections).
 
 Time it took to complete: **5 hours**
 
@@ -14,7 +14,7 @@ I created a neighborhood of houses located around a corner. There is also a ligh
 ## How to build
 
 1. Run `make`
-2. Run `./hw5`
+2. Run `./hw6`
 
 ## Main Key bindings:
  *  l          Toggles lighting
