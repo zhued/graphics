@@ -1,20 +1,20 @@
-# Lighting - HW5
+# Texture and Lighting - HW6
 ## Edward Zhu
 ## CSCI 4229
 
-Basic Code structure and skeleton from ex13 (lighting) from moodle.
-Scene is slightly changed from my code from my HW4 (projections).
+Demonstrates basic lighting and textures with houses and neighborhoods. 
+Code skeleton taken from my HW5, which was inspired by example 13 from moodle
 
-Time it took to complete: **5 hours**
+Time it took to complete: **6 hours**
 
 ## Idea
 
-I created a neighborhood of houses located around a corner. There is also a light source that orbits around the scene, giving the different sides of object shine depending on where it is located.
+I created a neighborhood of houses located around a corner. There is also a light source that orbits around the scene, giving the different sides of object shine depending on where it is located. And I also added some textures.
 
 ## How to build
 
 1. Run `make`
-2. Run `./hw5`
+2. Run `./hw6`
 
 ## Main Key bindings:
  *  l          Toggles lighting
