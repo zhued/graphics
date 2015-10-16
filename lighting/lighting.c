@@ -129,6 +129,7 @@ static void house(double x, double y, double z,
   glVertex3f(+1,-1,-1);
   glVertex3f(+1,-1,+1);
   glVertex3f(-1,-1,+1);
+  
   glEnd();
 
   /*
@@ -154,12 +155,13 @@ static void house(double x, double y, double z,
   glVertex3f(-.2,-1,1.1);
   glVertex3f(-.2,-1,1.0);
   glVertex3f(-.2,0,1.0);
-  glEnd();
   //  Top
+  glNormal3f(0,+1,0);
   glVertex3f(+.2,0,1.1);
   glVertex3f(+.2,0,1.0);
   glVertex3f(-.2,0,1.0);
   glVertex3f(-.2,0,1.1);
+  glEnd();
 
   /* 
   * Draw out the chimney on the right side of ever house.
@@ -301,6 +303,11 @@ static void ball(double x,double y,double z,double r)
  *  Draw out the scene of the neighboorhood (houses, roads, ground)
  */
 static void drawScene(){
+  float white[] = {1,1,1,1};
+   float black[] = {0,0,0,1};
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
   // Make the four houses in the neighborhood
   house(0,0,0 , 1,1,1, 0);
   house(-5,0.5,0 , 1,1.5,1, 0);
@@ -308,28 +315,27 @@ static void drawScene(){
   house(-4,0,6 , 1,1,1 , 180);
 
   // huge green ground
+  glBegin(GL_QUADS);
   glColor3ub(0,35,0);
-  glBegin(GL_QUADS);
   glNormal3f(0,+1,0);
-  glVertex3f(-200,-1,-200);
-  glVertex3f(-200,-1,200);
-  glVertex3f(200,-1,200);
-  glVertex3f(200,-1,-200);
-  glEnd();
-
+  glVertex3f(-10,-1,-5);
+  glVertex3f(-10,-1,10);
+  glVertex3f(10,-1,10);
+  glVertex3f(10,-1,-5);
+  
   // Make L shaped roads
-  glColor3ub(0,0,0);
-  glBegin(GL_QUADS);
-  glVertex3f(-20,-0.9,2);
-  glVertex3f(-20,-0.9,4.5);
+  glColor3f(0.1f, 0.1f, 0.1f);
+  glNormal3f(0,+1,0);
+  glVertex3f(-10,-0.9,2);
+  glVertex3f(-10,-0.9,4.5);
   glVertex3f(1,-0.9,4.5);
   glVertex3f(1,-0.9,2);
-  glEnd();
-  glColor3ub(0,0,0);
-  glBegin(GL_QUADS);
+
+  glColor3f(0.1f, 0.1f, 0.1f);
+  glNormal3f(0,+1,0);
   glVertex3f(-2,-0.9,2);
-  glVertex3f(-2,-0.9,20);
-  glVertex3f(1,-0.9,20);
+  glVertex3f(-2,-0.9,10);
+  glVertex3f(1,-0.9,10);
   glVertex3f(1,-0.9,2);
   glEnd();
 }
@@ -459,10 +465,10 @@ void special(int key,int x,int y)
 {
    //  Right arrow key - increase angle by 5 degrees
    if (key == GLUT_KEY_RIGHT)
-      th += 5;
+      th -= 5;
    //  Left arrow key - decrease angle by 5 degrees
    else if (key == GLUT_KEY_LEFT)
-      th -= 5;
+      th += 5;
    //  Up arrow key - increase elevation by 5 degrees
    else if (key == GLUT_KEY_UP)
       ph += 5;

@@ -200,7 +200,9 @@ void display()
       glDisable(GL_LIGHTING);
    //  Draw scene
    cube(0,0,0 , 0.5,0.5,0.5 , 0);
-   
+   // cube(2,0,0 , 0.5,0.5,0.5 , 0);
+   // cube(0,2,0 , 0.5,0.5,0.5 , 0);
+
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
    glColor3f(1,1,1);

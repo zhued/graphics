@@ -1,7 +1,7 @@
 /*
  *  Lighting and Texture - Edward Zhu
  *
- *  Demonstrates basic lighting with a house. 
+ *  Demonstrates basic lighting and textures with houses and neighborhoods. 
  *  Code skeleton taken from and inspired by example 13 from moodle.
  *
  *  Key bindings:
@@ -47,13 +47,15 @@ int inc       =  10;  // Ball increment
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 int emission  =   0;  // Emission intensity (%)
-int ambient   =  50;  // Ambient intensity (%)
+int ambient   =  10;  // Ambient intensity (%)
 int diffuse   = 100;  // Diffuse intensity (%)
 int specular  =   0;  // Specular intensity (%)
 int shininess =   0;  // Shininess (power of two)
 float shinyvec[1];    // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   4;  // Elevation of light
+
+unsigned int texture[7]; // Texture names
 
 /*
  *  Draw a house
@@ -65,17 +67,17 @@ static void house(double x, double y, double z,
           double dx, double dy, double dz,
           double th){
   
-     //  Set specular color to white
-   float white[] = {1,1,1,1};
-   float black[] = {0,0,0,1};
-   glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
-   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
-
   const double roof_height = 2;
   const double roof_width = 1.25;
-  const double root_length = 1.1;
-  const double roof_bottom = 0.75;
+  const double roof_length = 1.1;
+  const double roof_bottom = .75;
+
+  // Set specular color to white
+  float white[] = {1,1,1,1};
+  float black[] = {0,0,0,1};
+  glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
+  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+  glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
 
   glPushMatrix();
   
@@ -84,168 +86,179 @@ static void house(double x, double y, double z,
   glRotated(th, 0, 1, 0);
   glScaled(dx, dy, dz);
 
+  // Enable Textures
+  glEnable(GL_TEXTURE_2D);
+  glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+
   /*
   * Main Cube of the house
   */
+  glBindTexture(GL_TEXTURE_2D,texture[2]);
   glBegin(GL_QUADS);
-  //  Front
-  glColor3f(0.4,0.4,0.4);
-  glNormal3f( 0, 0, 1);
-  glVertex3f(-1,-1, 1);
-  glVertex3f(+1,-1, 1);
-  glVertex3f(+1,+1, 1);
-  glVertex3f(-1,+1, 1);
+  //Front
+  glNormal3f(0,0,1);
+  glTexCoord2f(0, 0); glVertex3f(-1,-1, 1);
+  glTexCoord2f(5, 0); glVertex3f(+1,-1, 1);
+  glTexCoord2f(5, 5); glVertex3f(+1,+.92, 1);
+  glTexCoord2f(0, 5); glVertex3f(-1,+.92, 1);
   //  Back
-  glNormal3f( 0, 0,-1);
-  glColor3f(0.4,0.4,0.4);
-  glVertex3f(+1,-1,-1);
-  glVertex3f(-1,-1,-1);
-  glVertex3f(-1,+1,-1);
-  glVertex3f(+1,+1,-1);
+  glNormal3f(0,0,-1);
+  glTexCoord2f(0, 0); glVertex3f(+1,-1,-1);
+  glTexCoord2f(5, 0); glVertex3f(-1,-1,-1);
+  glTexCoord2f(5, 5); glVertex3f(-1,+.92,-1);
+  glTexCoord2f(0, 5); glVertex3f(+1,+.92,-1);
   //  Right
-  glColor3f(0.5,0.5,0.5);
-  glNormal3f(+1, 0, 0);
-  glVertex3f(+1,-1,+1);
-  glVertex3f(+1,-1,-1);
-  glVertex3f(+1,+1,-1);
-  glVertex3f(+1,+1,+1);
+  glNormal3f(+1,0,0);
+  glTexCoord2f(0, 0); glVertex3f(+1,-1,+1);
+  glTexCoord2f(5, 0); glVertex3f(+1,-1,-1);
+  glTexCoord2f(5, 5); glVertex3f(+1,+.92,-1);
+  glTexCoord2f(0, 5); glVertex3f(+1,+.92,+1);
   //  Left
-  glColor3f(0.5,0.5,0.5);
   glNormal3f(-1, 0, 0);
-  glVertex3f(-1,-1,-1);
-  glVertex3f(-1,-1,+1);
-  glVertex3f(-1,+1,+1);
-  glVertex3f(-1,+1,-1);
+  glTexCoord2f(0, 0); glVertex3f(-1,-1,-1);
+  glTexCoord2f(5, 0); glVertex3f(-1,-1,+1);
+  glTexCoord2f(5, 5); glVertex3f(-1,+.92,+1);
+  glTexCoord2f(0, 5); glVertex3f(-1,+.92,-1);
   //  Top
-  glColor3f(0,0,0);
-  glVertex3f(-1,+1,+1);
-  glVertex3f(+1,+1,+1);
-  glVertex3f(+1,+1,-1);
-  glVertex3f(-1,+1,-1);
+  // glColor3f(0,0,0);
+  glNormal3f( 0,+.92, 0);
+  glVertex3f(-1,+.92,+1);
+  glVertex3f(+1,+.92,+1);
+  glVertex3f(+1,+.92,-1);
+  glVertex3f(-1,+.92,-1);
   //  Bottom
-  glColor3f(0,0,0);
+  // glColor3f(0,0,0);
   glNormal3f( 0,-1, 0);
   glVertex3f(-1,-1,-1);
   glVertex3f(+1,-1,-1);
   glVertex3f(+1,-1,+1);
   glVertex3f(-1,-1,+1);
   glEnd();
-
+  
+  
   /*
   * Draw the front door in front that protrudes a tiny bit
+  * I'm taking the sides & top out because they REALLY mess with scene
   */
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glPolygonOffset(-1, -1);
+  glBindTexture(GL_TEXTURE_2D, texture[4]);
   glBegin(GL_QUADS);
-  glColor3ub(100,50,0);
-  //  Front
+  // Front
   glNormal3f(0,0,+1);
-  glVertex3f(+.2,-1,1.1);
-  glVertex3f(-.2,-1,1.1);
-  glVertex3f(-.2,0,1.1);
-  glVertex3f(+.2,0,1.1);
-  //  Right
-  glNormal3f(+1,0,0);
-  glVertex3f(+.2,0,1.1);
-  glVertex3f(+.2,-1,1.1);
-  glVertex3f(+.2,-1,1.0);
-  glVertex3f(+.2,0,1.0);
-  //  Left
-  glNormal3f(-1,0,0);
-  glVertex3f(-.2,0,1.1);
-  glVertex3f(-.2,-1,1.1);
-  glVertex3f(-.2,-1,1.0);
-  glVertex3f(-.2,0,1.0);
+  glTexCoord2f(0, 0); glVertex3f(+.2,-1,1);
+  glTexCoord2f(1, 0); glVertex3f(-.2,-1,1);
+  glTexCoord2f(1, 1); glVertex3f(-.2,0,1);
+  glTexCoord2f(0, 1); glVertex3f(+.2,0,1);
   glEnd();
-  //  Top
-  glVertex3f(+.2,0,1.1);
-  glVertex3f(+.2,0,1.0);
-  glVertex3f(-.2,0,1.0);
-  glVertex3f(-.2,0,1.1);
+
 
   /* 
   * Draw out the chimney on the right side of ever house.
   */ 
+  glBindTexture(GL_TEXTURE_2D, texture[6]);
   glBegin(GL_QUADS);
-    // Front
-  glColor3ub(100,0,0);
+  // Front
   glNormal3f(0,0,+1);
-  glVertex3f(+.5,+1,+.25);
-  glVertex3f(+.5,+2,+.25);
-  glVertex3f(+1,+2,+.25);
-  glVertex3f(+1,+1,+.25);
+  glTexCoord2f(0, 0); glVertex3f(+.5,+2,+.25);
+  glTexCoord2f(2, 0); glVertex3f(+.5,+1,+.25);
+  glTexCoord2f(2, 2); glVertex3f(+1,+1,+.25);
+  glTexCoord2f(0, 2); glVertex3f(+1,+2,+.25);
   // Back
-  glColor3ub(100,0,0);
   glNormal3f(0,0,-1);
-  glVertex3f(+.5,+1,-.25);
-  glVertex3f(+.5,+2,-.25);
-  glVertex3f(+1,+2,-.25);
-  glVertex3f(+1,+1,-.25);
+  glTexCoord2f(0, 0); glVertex3f(+.5,+2,-.25);
+  glTexCoord2f(2, 0); glVertex3f(+.5,+1,-.25);
+  glTexCoord2f(2, 2); glVertex3f(+1,+1,-.25);
+  glTexCoord2f(0, 2); glVertex3f(+1,+2,-.25);
   // Left
-  glColor3ub(60,0,0);
   glNormal3f(-1,0,0);
-  glVertex3f(+.5,+1,+.25);
-  glVertex3f(+.5,+1,-.25);
-  glVertex3f(+.5,+2,-.25);
-  glVertex3f(+.5,+2,+.25);
+  glTexCoord2f(0, 0); glVertex3f(+.5,+1,+.25);
+  glTexCoord2f(2, 0); glVertex3f(+.5,+1,-.25);
+  glTexCoord2f(2, 2); glVertex3f(+.5,+2,-.25);
+  glTexCoord2f(0, 2); glVertex3f(+.5,+2,+.25);
   // Right
-  glColor3ub(60,0,0);
   glNormal3f(+1,0,0);
-  glVertex3f(+1,+1,+.25);
-  glVertex3f(+1,+1,-.25);
-  glVertex3f(+1,+2,-.25);
-  glVertex3f(+1,+2,+.25);
-  // Top
-  glColor3ub(10,10,10);
-  glNormal3f(0,+1,0);
-  glVertex3f(+.5,+2,+.25);
-  glVertex3f(+.5,+2,-.25);
-  glVertex3f(+1,+2,-.25);
-  glVertex3f(+1,+2,+.25);
+  glTexCoord2f(0, 0); glVertex3f(+1,+1,+.25);
+  glTexCoord2f(2, 0); glVertex3f(+1,+1,-.25);
+  glTexCoord2f(2, 2); glVertex3f(+1,+2,-.25);
+  glTexCoord2f(0, 2); glVertex3f(+1,+2,+.25);
   glEnd();
+  // Top
+  glBindTexture(GL_TEXTURE_2D, texture[6]);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0); glVertex3f(+.5,+2,+.25);
+  glTexCoord2f(2, 0); glVertex3f(+.5,+2,-.25);
+  glTexCoord2f(2, 2); glVertex3f(+1,+2,-.25);
+  glTexCoord2f(0, 2); glVertex3f(+1,+2,+.25);
+  glEnd();
+
 
   /* 
   * Draw out the roof using GL_triangles for the front
   * and back, then back to quads for the sides and bottom
+  * Make quads small on the top to make it look like a roof
   */ 
+  glBindTexture(GL_TEXTURE_2D,texture[1]);
   glBegin(GL_TRIANGLES);
   // Front
-  glColor3ub(30,30,30);
   glNormal3f(0,0,+1);
-  glVertex3f(+roof_width,+roof_bottom,+root_length);
-  glVertex3f(-roof_width,+roof_bottom,+root_length);
-  glVertex3f(0,+roof_height,+root_length);
+  glTexCoord2f(0, 0); glVertex3f(+roof_width,+roof_bottom,+roof_length);
+  glTexCoord2f(5, 0); glVertex3f(-roof_width,+roof_bottom,+roof_length);
+  glTexCoord2f(2, 5); glVertex3f(0,+roof_height,+roof_length/3);
   // Back
   glNormal3f(0,0,-1);
-  glVertex3f(+roof_width,+roof_bottom,-root_length);
-  glVertex3f(-roof_width,+roof_bottom,-root_length);
-  glVertex3f(0,+roof_height,-root_length);
+  glTexCoord2f(0, 0); glVertex3f(+roof_width,+roof_bottom,-roof_length);
+  glTexCoord2f(5, 0); glVertex3f(-roof_width,+roof_bottom,-roof_length);
+  glTexCoord2f(2, 5); glVertex3f(0,+roof_height,-roof_length/3);
   glEnd();
   // Sides of Roof
-  // two sides are curved, bottom is just flat
   glBegin(GL_QUADS);
-  // Bottom
-  glColor3ub(0,0,0);
-  glNormal3f(0,+1,0);
-  glVertex3f(+roof_width,+roof_bottom,-root_length);
-  glVertex3f(+roof_width,+roof_bottom,+root_length);
-  glVertex3f(-roof_width,+roof_bottom,+root_length);
-  glVertex3f(-roof_width,+roof_bottom,-root_length);
   // Right side
-  glColor3ub(50,50,50);
   glNormal3f(+1,+1,0);
-  glVertex3f(+roof_width,+roof_bottom,-root_length);
-  glVertex3f(+roof_width,+roof_bottom,+root_length);
-  glVertex3f(0,+roof_height,+root_length);
-  glVertex3f(0,+roof_height,-root_length);
+  glTexCoord2f(0, 0); glVertex3f(+roof_width,+roof_bottom,-roof_length);
+  glTexCoord2f(5, 0); glVertex3f(+roof_width,+roof_bottom,+roof_length);
+  glTexCoord2f(5, 5); glVertex3f(0,+roof_height,+roof_length/3);
+  glTexCoord2f(0, 5); glVertex3f(0,+roof_height,-roof_length/3);
   // Left Side
   glNormal3f(-1,-1,0);
-  glVertex3f(-roof_width,+roof_bottom,-root_length);
-  glVertex3f(-roof_width,+roof_bottom,+root_length);
-  glVertex3f(0,+roof_height,+root_length);
-  glVertex3f(0,+roof_height,-root_length);  
+  glTexCoord2f(0, 0); glVertex3f(-roof_width,+roof_bottom,-roof_length);
+  glTexCoord2f(5, 0); glVertex3f(-roof_width,+roof_bottom,+roof_length);
+  glTexCoord2f(5, 5); glVertex3f(0,+roof_height,+roof_length/3);
+  glTexCoord2f(0, 5); glVertex3f(0,+roof_height,-roof_length/3);  
+  glEnd();
+  // Bottom
+  glBindTexture(GL_TEXTURE_2D, texture[6]);  // Stucco
+  glBegin(GL_QUADS);
+  glNormal3f(0,+1,0);
+  glTexCoord2f(0, 0); glVertex3f(+roof_width,+roof_bottom,-roof_length);
+  glTexCoord2f(5, 0); glVertex3f(+roof_width,+roof_bottom,+roof_length);
+  glTexCoord2f(5, 5); glVertex3f(-roof_width,+roof_bottom,+roof_length);
+  glTexCoord2f(0, 5); glVertex3f(-roof_width,+roof_bottom,-roof_length);
   glEnd();
 
-  glPopMatrix();
+  /* 
+  * Windows in the front
+  */ 
+  glBindTexture(GL_TEXTURE_2D, texture[5]);
+  glBegin(GL_QUADS);
+  // Right window
+  glNormal3f(0,0,+1);
+  glTexCoord2f(0, 0); glVertex3f(+.4,-.5,+1);
+  glTexCoord2f(1, 0); glVertex3f(+.8,-.5,+1);
+  glTexCoord2f(1, 1); glVertex3f(+.8, 0 ,+1);
+  glTexCoord2f(0, 1); glVertex3f(+.4, 0 ,+1);
+  // Left windows
+  glNormal3f(0,0,+1);
+  glTexCoord2f(0, 0); glVertex3f(-.4,-.5,+1);
+  glTexCoord2f(1, 0); glVertex3f(-.8,-.5,+1);
+  glTexCoord2f(1, 1); glVertex3f(-.8, 0 ,+1);
+  glTexCoord2f(0, 1); glVertex3f(-.4, 0 ,+1);
+  glEnd();
+
+
   glDisable(GL_POLYGON_OFFSET_FILL);
+  glDisable(GL_TEXTURE_2D); 
+  glPopMatrix();
 }
 
 /*
@@ -293,45 +306,53 @@ static void ball(double x,double y,double z,double r)
       }
       glEnd();
    }
-   //  Undo transofrmations
+   //  Undo transformations
    glPopMatrix();
 }
 
 /*
  *  Draw out the scene of the neighboorhood (houses, roads, ground)
  */
-static void drawScene(){
+static void scene(){
   // Make the four houses in the neighborhood
   house(0,0,0 , 1,1,1, 0);
   house(-5,0.5,0 , 1,1.5,1, 0);
   house(3,0,5 , 2,1,1 , -90);
   house(-4,0,6 , 1,1,1 , 180);
 
+  glEnable(GL_TEXTURE_2D);
+  glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+
   // huge green ground
-  glColor3ub(0,35,0);
+  glBindTexture(GL_TEXTURE_2D,texture[0]);
   glBegin(GL_QUADS);
+  // glColor3ub(0,35,0);
   glNormal3f(0,+1,0);
-  glVertex3f(-200,-1,-200);
-  glVertex3f(-200,-1,200);
-  glVertex3f(200,-1,200);
-  glVertex3f(200,-1,-200);
+  glTexCoord2f(0,0);  glVertex3f(-10,-1,-5);
+  glTexCoord2f(20,0);   glVertex3f(-10,-1,10);
+  glTexCoord2f(20,20);  glVertex3f(10,-1,10);
+  glTexCoord2f(0,20); glVertex3f(10,-1,-5);
   glEnd();
 
   // Make L shaped roads
-  glColor3ub(0,0,0);
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glBindTexture(GL_TEXTURE_2D,texture[3]);
   glBegin(GL_QUADS);
-  glVertex3f(-20,-0.9,2);
-  glVertex3f(-20,-0.9,4.5);
-  glVertex3f(1,-0.9,4.5);
-  glVertex3f(1,-0.9,2);
+  glNormal3f(0,+1,0);
+  glTexCoord2f(0,0); glVertex3f(-10,-0.9,2);
+  glTexCoord2f(1,0); glVertex3f(-10,-0.9,4.5);
+  glTexCoord2f(1,1); glVertex3f(1,-0.9,4.5);
+  glTexCoord2f(0,1); glVertex3f(1,-0.9,2);
+
+  glNormal3f(0,+1,0);
+  glTexCoord2f(1,0); glVertex3f(-2,-0.905,2);
+  glTexCoord2f(1,1); glVertex3f(-2,-0.905,10);
+  glTexCoord2f(0,1); glVertex3f(1,-0.905,10);
+  glTexCoord2f(0,0); glVertex3f(1,-0.905,2);
   glEnd();
-  glColor3ub(0,0,0);
-  glBegin(GL_QUADS);
-  glVertex3f(-2,-0.9,2);
-  glVertex3f(-2,-0.9,20);
-  glVertex3f(1,-0.9,20);
-  glVertex3f(1,-0.9,2);
-  glEnd();
+  glDisable(GL_POLYGON_OFFSET_FILL);
+
+  glDisable(GL_TEXTURE_2D); 
 }
 
 /*
@@ -398,7 +419,7 @@ void display()
      glDisable(GL_LIGHTING);
 
    //  Draw scene
-   drawScene();
+   scene();
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
@@ -459,10 +480,10 @@ void special(int key,int x,int y)
 {
    //  Right arrow key - increase angle by 5 degrees
    if (key == GLUT_KEY_RIGHT)
-      th += 5;
+      th -= 5;
    //  Left arrow key - decrease angle by 5 degrees
    else if (key == GLUT_KEY_LEFT)
-      th -= 5;
+      th += 5;
    //  Up arrow key - increase elevation by 5 degrees
    else if (key == GLUT_KEY_UP)
       ph += 5;
@@ -602,6 +623,14 @@ int main(int argc,char* argv[])
    glutSpecialFunc(special);
    glutKeyboardFunc(key);
    glutIdleFunc(idle);
+   // Load textures
+   texture[0] = LoadTexBMP("bmp/grass.bmp");
+   texture[1] = LoadTexBMP("bmp/shingle.bmp");
+   texture[2] = LoadTexBMP("bmp/wall.bmp");
+   texture[3] = LoadTexBMP("bmp/road.bmp");
+   texture[4] = LoadTexBMP("bmp/door.bmp");
+   texture[5] = LoadTexBMP("bmp/window.bmp");
+   texture[6] = LoadTexBMP("bmp/chimney.bmp");
    //  Pass control to GLUT so it can interact with the user
    ErrCheck("init");
    glutMainLoop();
