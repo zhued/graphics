@@ -40,13 +40,15 @@ int light=1;      //  Lighting
 double asp=1;     //  Aspect ratio
 double dim=20.0;   //  Size of world
 
+
+
 unsigned int texture[18];
-GLuint cockpitTex;
+unsigned int space;
 
 // Light values
 int one       =   1;  // Unit value
 int distance  =   10;  // Light distance
-int inc       =  10;  // Ball increment
+int inc       =  5;  // Ball increment
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 int emission  =   0;  // Emission intensity (%)
@@ -58,32 +60,29 @@ float shinyvec[1];    // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   4;  // Elevation of light
 
+// building correct vectors
+// Mathmatics found here:
+//    https://www.opengl.org/wiki/Calculating_a_Surface_Normal
+static void normal(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3){
+ // first vector
+ double v1x = x2 - x1;
+ double v1y = y2 - y1;
+ double v1z = z2 - z1;
 
-// static void normal(double x1, double y1, double z1,
-//                 double x2, double y2, double z2,
-//                 double x3, double y3, double z3){
-//  // Build first vector
-//  double v1x = x2 - x1;
-//  double v1y = y2 - y1;
-//  double v1z = z2 - z1;
+ // second vector
+ double v2x = x3 - x1;
+ double v2y = y3 - y1;
+ double v2z = z3 - z1;
 
-//  // Build second vector
-//  double v2x = x3 - x1;
-//  double v2y = y3 - y1;
-//  double v2z = z3 - z1;
+ // Get Cross Product
+ double nx = (v1y*v2z) - (v1z*v2y);
+ double ny = (v1z*v2x) - (v1x*v2z);
+ double nz = (v1x*v2y) - (v1y*v2x);
 
-//  // Get Cross Product
-//  double nx = (v1y*v2z) - (v1z*v2y);
-//  double ny = (v1z*v2x) - (v1x*v2z);
-//  double nz = (v1x*v2y) - (v1y*v2x);
+ // Set normal for trianlge plane
+ glNormal3f(nx,ny,nz);
+}
 
-//  // Set normal for trianlge plane
-//  glNormal3f(nx,ny,nz);
-// }
-
-/*
- *  Draw vertex in polar coordinates with normal
- */
 static void Vertex(double th,double ph)
 {
    double x = Sin(th)*Cos(ph);
@@ -94,6 +93,54 @@ static void Vertex(double th,double ph)
    glNormal3d(x,y,z);
    glVertex3d(x,y,z);
 }
+
+// From class examples -  Sky
+// static void Space(double D)
+// {
+//    glColor3f(1,1,1);
+//    glEnable(GL_TEXTURE_2D);
+
+//    //  Sides
+//    glBindTexture(GL_TEXTURE_2D,space);
+//    glBegin(GL_QUADS);
+//    glTexCoord2f(0.00,0); glVertex3f(-D,-D,-D);
+//    glTexCoord2f(0.25,0); glVertex3f(+D,-D,-D);
+//    glTexCoord2f(0.25,1); glVertex3f(+D,+D,-D);
+//    glTexCoord2f(0.00,1); glVertex3f(-D,+D,-D);
+
+//    glTexCoord2f(0.25,0); glVertex3f(+D,-D,-D);
+//    glTexCoord2f(0.50,0); glVertex3f(+D,-D,+D);
+//    glTexCoord2f(0.50,1); glVertex3f(+D,+D,+D);
+//    glTexCoord2f(0.25,1); glVertex3f(+D,+D,-D);
+
+//    glTexCoord2f(0.50,0); glVertex3f(+D,-D,+D);
+//    glTexCoord2f(0.75,0); glVertex3f(-D,-D,+D);
+//    glTexCoord2f(0.75,1); glVertex3f(-D,+D,+D);
+//    glTexCoord2f(0.50,1); glVertex3f(+D,+D,+D);
+
+//    glTexCoord2f(0.75,0); glVertex3f(-D,-D,+D);
+//    glTexCoord2f(1.00,0); glVertex3f(-D,-D,-D);
+//    glTexCoord2f(1.00,1); glVertex3f(-D,+D,-D);
+//    glTexCoord2f(0.75,1); glVertex3f(-D,+D,+D);
+//    glEnd();
+
+//    //  Top and bottom
+//    glBindTexture(GL_TEXTURE_2D,sky[1]);
+//    glBegin(GL_QUADS);
+//    glTexCoord2f(0.0,0); glVertex3f(+D,+D,-D);
+//    glTexCoord2f(0.5,0); glVertex3f(+D,+D,+D);
+//    glTexCoord2f(0.5,1); glVertex3f(-D,+D,+D);
+//    glTexCoord2f(0.0,1); glVertex3f(-D,+D,-D);
+
+//    glTexCoord2f(1.0,1); glVertex3f(-D,-D,+D);
+//    glTexCoord2f(0.5,1); glVertex3f(+D,-D,+D);
+//    glTexCoord2f(0.5,0); glVertex3f(+D,-D,-D);
+//    glTexCoord2f(1.0,0); glVertex3f(-D,-D,-D);
+//    glEnd();
+
+//    glDisable(GL_TEXTURE_2D);
+// }
+
 
 
 /*
@@ -178,10 +225,8 @@ static void TieFighter(double x,double y,double z,double s,
                       double th)
 {
   int ph;
-  //  Save transformation
   glPushMatrix();
 
-  //  Offset, scale and rotate
   glTranslated(x,y,z);
   glScaled(s,s,s);
   glRotated(th,rx,ry,rz);
@@ -199,13 +244,185 @@ static void TieFighter(double x,double y,double z,double s,
     glBegin(GL_QUAD_STRIP);
     for (th=0;th<=360;th+=2*inc)
     {
-       glTexCoord2d(th/360.0,ph/180.0+0.5);
-       Vertex(th,ph);
-       glTexCoord2d(th/360.0,(ph+inc)/180.0+0.5);
-       Vertex(th,ph+inc);
+      glTexCoord2d(th/360.0,ph/180.0+0.5);
+      glNormal3d(Sin(th)*Cos(ph),Cos(th)*Cos(ph),Sin(ph));
+      glVertex3d(Sin(th)*Cos(ph),Cos(th)*Cos(ph),Sin(ph));
+
+      glTexCoord2d(th/360.0,(ph+inc)/180.0+0.5);
+      glNormal3d(Sin(th)*Cos(ph+inc),Cos(th)*Cos(ph+inc),Sin(ph+inc));
+      glVertex3d(Sin(th)*Cos(ph+inc),Cos(th)*Cos(ph+inc),Sin(ph+inc));
     }
     glEnd();
   }
+
+
+  /* WINDOWS */
+  glColor3d(0, 0, 0);
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(3),0.2 * Sin(3),1, 0.47 * Cos(3),0.47 * Sin(3),1, 0.47 * Cos(42),0.47 * Sin(42),1);
+  glVertex3d(0.2 * Cos(3), 0.2 * Sin(3), 1);
+  glVertex3d(0.47 * Cos(3), 0.47 * Sin(3), 1);
+  glVertex3d(0.47 * Cos(42), 0.47 * Sin(42), 1);
+  glVertex3d(0.2 * Cos(42), 0.2 * Sin(42), 1);
+  glEnd();
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(48),0.2 * Sin(48),1, 0.47 * Cos(48),0.47 * Sin(48),1, 0.47 * Cos(87),0.47 * Sin(87),1);
+  glVertex3d(0.2 * Cos(48), 0.2 * Sin(48), 1);
+  glVertex3d(0.47 * Cos(48), 0.47 * Sin(48), 1);
+  glVertex3d(0.47 * Cos(87), 0.47 * Sin(87), 1);
+  glVertex3d(0.2 * Cos(87), 0.2 * Sin(87), 1);
+  glEnd();
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(93),0.2 * Sin(93),1, 0.47 * Cos(93),0.47 * Sin(93),1, 0.47 * Cos(132),0.47 * Sin(132),1);
+  glVertex3d(0.2 * Cos(93), 0.2 * Sin(93), 1);
+  glVertex3d(0.47 * Cos(93), 0.47 * Sin(93), 1);
+  glVertex3d(0.47 * Cos(132), 0.47 * Sin(132), 1);
+  glVertex3d(0.2 * Cos(132), 0.2 * Sin(132), 1);
+  glEnd();
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(138),0.2 * Sin(138),1, 0.47 * Cos(138),0.47 * Sin(138),1, 0.47 * Cos(177),0.47 * Sin(177),1);
+  glVertex3d(0.2 * Cos(138), 0.2 * Sin(138), 1);
+  glVertex3d(0.47 * Cos(138), 0.47 * Sin(138), 1);
+  glVertex3d(0.47 * Cos(177), 0.47 * Sin(177), 1);
+  glVertex3d(0.2 * Cos(177), 0.2 * Sin(177), 1);
+  glEnd();
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(183),0.2 * Sin(183),1, 0.47 * Cos(183),0.47 * Sin(183),1, 0.47 * Cos(222),0.47 * Sin(222),1);
+  glVertex3d(0.2 * Cos(183), 0.2 * Sin(183), 1);
+  glVertex3d(0.47 * Cos(183), 0.47 * Sin(183), 1);
+  glVertex3d(0.47 * Cos(222), 0.47 * Sin(222), 1);
+  glVertex3d(0.2 * Cos(222), 0.2 * Sin(222), 1);
+  glEnd();
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(228),0.2 * Sin(228),1, 0.47 * Cos(228),0.47 * Sin(228),1, 0.47 * Cos(267),0.47 * Sin(267),1);
+  glVertex3d(0.2 * Cos(228), 0.2 * Sin(228), 1);
+  glVertex3d(0.47 * Cos(228), 0.47 * Sin(228), 1);
+  glVertex3d(0.47 * Cos(267), 0.47 * Sin(267), 1);
+  glVertex3d(0.2 * Cos(267), 0.2 * Sin(267), 1);
+  glEnd();
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(273),0.2 * Sin(273),1, 0.47 * Cos(273),0.47 * Sin(273),1, 0.47 * Cos(312),0.47 * Sin(312),1);
+  glVertex3d(0.2 * Cos(273), 0.2 * Sin(273), 1);
+  glVertex3d(0.47 * Cos(273), 0.47 * Sin(273), 1);
+  glVertex3d(0.47 * Cos(312), 0.47 * Sin(312), 1);
+  glVertex3d(0.2 * Cos(312), 0.2 * Sin(312), 1);
+  glEnd();
+
+  glBegin(GL_QUADS);
+  normal(0.2 * Cos(318),0.2 * Sin(318),1, 0.47 * Cos(318),0.47 * Sin(318),1, 0.47 * Cos(357),0.47 * Sin(357),1);
+  glVertex3d(0.2 * Cos(318), 0.2 * Sin(318), 1);
+  glVertex3d(0.47 * Cos(318), 0.47 * Sin(318), 1);
+  glVertex3d(0.47 * Cos(357), 0.47 * Sin(357), 1);
+  glVertex3d(0.2 * Cos(357), 0.2 * Sin(357), 1);
+  glEnd();
+  // Main
+  glBegin(GL_POLYGON);
+  glColor3d(0, 0, 0);
+  glNormal3d(0,0,1);
+  glVertex3d(0.17 * Cos(0), 0.17 * Sin(0), 1);
+  glVertex3d(0.17 * Cos(45), 0.17 * Sin(45), 1);
+  glVertex3d(0.17 * Cos(90), 0.17 * Sin(90), 1);
+  glVertex3d(0.17 * Cos(135), 0.17 * Sin(135), 1);
+  glVertex3d(0.17 * Cos(180), 0.17 * Sin(180), 1);
+  glVertex3d(0.17 * Cos(225), 0.17 * Sin(225), 1);
+  glVertex3d(0.17 * Cos(270), 0.17 * Sin(270), 1);
+  glVertex3d(0.17 * Cos(315), 0.17 * Sin(315), 1);
+  glVertex3d(0.17 * Cos(315), 0.17 * Sin(315), 1);
+  glVertex3d(0.17 * Cos(360), 0.17 * Sin(360), 1);
+  glEnd();
+  // Border
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += 5)
+  {
+    glColor3d(0.5, 0.5, 0.5);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 1);
+    glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 0.9);
+  }
+  glEnd();
+  // Fill in the cylinder
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += 5)
+  {
+    glColor3d(0.7, 0.7, 0.7);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 0.99);
+    glVertex3d(0.1 * Cos(th), 0.1 * Sin(th), 0.999);
+  }
+  glEnd();
+  /* WINDOWS END */
+
+  /* LASERS FRONT */
+  glPushMatrix();
+  glTranslated(0.3, -0.6, 0);
+
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += inc)
+  {
+    glColor3d(0.6, 0.6, 0.6);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.95);
+    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.6);
+  }
+  glEnd();
+
+  for (ph=-90;ph<90;ph+=inc)
+  {
+    glColor3d(1, 0, 0);
+    glBegin(GL_QUAD_STRIP);
+    for (th=0;th<=360;th+=inc)
+    {
+      glNormal3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
+      glVertex3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
+
+      glNormal3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
+      glVertex3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
+       
+    }
+    glEnd();
+  }
+
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslated(-0.3, -0.6, 0);
+
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += inc)
+  {
+    glColor3d(0.6, 0.6, 0.6);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.95);
+    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.6);
+  }
+  glEnd();
+
+  for (ph=-90;ph<90;ph+=inc)
+  {
+    glColor3d(1, 0, 0);
+    glBegin(GL_QUAD_STRIP);
+    for (th=0;th<=360;th+=inc)
+    {
+      glNormal3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
+      glVertex3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
+
+      glNormal3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
+      glVertex3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
+       
+    }
+    glEnd();
+  }
+
+  glPopMatrix();
+
+  /* LASERS FRONT END */
 
   TieFighterWing(2,0,0, 0,0,0, 0);
   TieFighterWing(-2,0,0, 0,1,0, 180);
@@ -290,6 +507,9 @@ void display()
 
    //  Undo previous transformations
    glLoadIdentity();
+
+   // Space(3.5*dim);
+
    //  Perspective - set eye position
    if (mode)
    {
@@ -408,9 +628,6 @@ void key(unsigned char ch,int x,int y)
   //  Reset view angle
   else if (ch == '0')
     th = ph = 0;
-  //  Toggle axes
-  else if (ch == 'x' || ch == 'X')
-    axes = 1-axes;
   //  Toggle lighting
   else if (ch == 'l' || ch == 'L')
     light = 1-light;
@@ -511,7 +728,7 @@ int main(int argc,char* argv[])
    glutInit(&argc,argv);
    //  Request double buffered, true color window with Z buffering at 600x600
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-   glutInitWindowSize(600,600);
+   glutInitWindowSize(700,700);
    glutCreateWindow("Final - Tie Fighter - Edward Zhu");
    //  Set callbacks
    glutDisplayFunc(display);
@@ -520,12 +737,14 @@ int main(int argc,char* argv[])
    glutKeyboardFunc(key);
    glutIdleFunc(idle);
 
-   texture[6] = LoadTexBMP("textures/img6.bmp");
-   texture[9] = LoadTexBMP("textures/wing.bmp");
 
    // Load all bmps
-   // cockpitTex = LoadTexBMP("textures/TIECockpit.bmp");
+   // space = LoadTexBMP("textures/space.bmp");
    texture[1] = LoadTexBMP("textures/TIECockpit.bmp");
+   texture[6] = LoadTexBMP("textures/metal.bmp");
+   texture[9] = LoadTexBMP("textures/wing.bmp");
+
+   
 
 
 
