@@ -41,7 +41,8 @@ double asp=1;     //  Aspect ratio
 double dim=20.0;   //  Size of world
 
 
-
+float sco=180;    //  Spot cutoff angle
+float Exp=0;      //  Spot exponent
 unsigned int texture[18];
 unsigned int space;
 
@@ -83,16 +84,39 @@ static void normal(double x1, double y1, double z1, double x2, double y2, double
  glNormal3f(nx,ny,nz);
 }
 
-static void Vertex(double th,double ph)
-{
-   double x = Sin(th)*Cos(ph);
-   double y = Cos(th)*Cos(ph);
-   double z =         Sin(ph);
-   //  For a sphere at the origin, the position
-   //  and normal vectors are the same
-   glNormal3d(x,y,z);
-   glVertex3d(x,y,z);
-}
+// static void Vertex(double th,double ph)
+// {
+//    double x = Sin(th)*Cos(ph);
+//    double y = Cos(th)*Cos(ph);
+//    double z =         Sin(ph);
+//    //  For a sphere at the origin, the position
+//    //  and normal vectors are the same
+//    glNormal3d(x,y,z);
+//    glVertex3d(x,y,z);
+// }
+
+// static void ball(double x,double y,double z,double r)
+// {
+//    //  Save transformation
+//    glPushMatrix();
+//    //  Offset, scale and rotate
+//    glTranslated(x,y,z);
+//    glScaled(r,r,r);
+//    //  Yellow ball
+//    glColor3f(1,1,0);
+//    glutSolidSphere(1.0,16,16);
+//    //  Undo transofrmations
+//    glPopMatrix();
+// }
+
+
+
+
+
+
+
+
+
 
 // From class examples -  Sky
 // static void Space(double D)
@@ -182,7 +206,6 @@ static void TieFighterBridge(double th, double rx, double ry, double rz)
   }
   glEnd();
 
-
   glPopMatrix();
 }
 
@@ -195,18 +218,94 @@ static void TieFighterWing(double x, double y, double z,
   glTranslated(x,y,z);
   glRotated(th,rx,ry,rz);
 
+  
+
+  // Connected to bridge
   glBindTexture(GL_TEXTURE_2D,texture[9]);
   glBegin(GL_POLYGON);
   glColor3f(0.75,0.75,0.75);
-  glNormal3d(1,0,0);
+  glNormal3d(-1,0,0);
   glTexCoord2f(0.7233,0); glVertex3d(0,-3,-2);
   glTexCoord2f(0.8807,0.4931); glVertex3d(0,0,-3);
   glTexCoord2f(0.7233,1); glVertex3d(0,3,-2);
   glTexCoord2f(0.1491,1); glVertex3d(0,3,2);
   glTexCoord2f(0,0.4931); glVertex3d(0,0,3);
   glTexCoord2f(0.1491,0); glVertex3d(0,-3,2);
-
   glEnd();
+  // Outwards panel
+  glBegin(GL_POLYGON);
+  glColor3f(0.75,0.75,0.75);
+  glNormal3d(1,0,0);
+  glTexCoord2f(0.7233,0); glVertex3d(0.1,-3,-2);
+  glTexCoord2f(0.8807,0.4931); glVertex3d(0.1,0,-3);
+  glTexCoord2f(0.7233,1); glVertex3d(0.1,3,-2);
+  glTexCoord2f(0.1491,1); glVertex3d(0.1,3,2);
+  glTexCoord2f(0,0.4931); glVertex3d(0.1,0,3);
+  glTexCoord2f(0.1491,0); glVertex3d(0.1,-3,2);
+
+  glNormal3d(1,0,0);
+  glTexCoord2f(0.7233,0); glVertex3d(0.1,-3,-2);
+  glTexCoord2f(0.8807,0.4931); glVertex3d(0.1,0,-3);
+  glTexCoord2f(0.7233,1); glVertex3d(0.1,3,-2);
+  glTexCoord2f(0.1491,1); glVertex3d(0.1,3,2);
+  glTexCoord2f(0,0.4931); glVertex3d(0.1,0,3);
+  glTexCoord2f(0.1491,0); glVertex3d(0.1,-3,2);
+  glEnd();  
+
+  glBindTexture(GL_TEXTURE_2D,texture[6]);
+  // 
+  // 
+  // 
+  // TODO: ADD TEXCOORD2F
+  // 
+  // 
+  // 
+  glBegin(GL_QUADS);
+  glColor3d(0.6, 0.6, 0.6);
+  glNormal3d(0,0,+1);
+  glVertex3f(0.0,3, 2);
+  glVertex3f(0.0,0, 3);
+  glVertex3f(0.1,0, 3);
+  glVertex3f(0.1,3, 2);
+
+  glNormal3d(0,0,+1);
+  glVertex3f(0.0,0, 3);
+  glVertex3f(0.0,-3,2);
+  glVertex3f(0.1,-3,2);
+  glVertex3f(0.1,0, 3);
+
+  glNormal3d(0,0,+1);
+  glVertex3f(0.0,0, 3);
+  glVertex3f(0.0,-3,2);
+  glVertex3f(0.1,-3,2);
+  glVertex3f(0.1,0, 3);
+
+  glNormal3d(0,0,+1);
+  glVertex3f(0.0,-3, 2);
+  glVertex3f(0.0,-3,-2);
+  glVertex3f(0.1,-3,-2);
+  glVertex3f(0.1,-3, 2);
+
+  glNormal3d(0,0,+1);
+  glVertex3f(0.0,-3, -2);
+  glVertex3f(0.0,0,-3);
+  glVertex3f(0.1,0,-3);
+  glVertex3f(0.1,-3, -2);
+
+  glNormal3d(0,0,+1);
+  glVertex3f(0.0,0, -3);
+  glVertex3f(0.0,3,-2);
+  glVertex3f(0.1,3,-2);
+  glVertex3f(0.1,0, -3);
+
+  glNormal3d(0,0,+1);
+  glVertex3f(0.0,3, 2);
+  glVertex3f(0.0,3,-2);
+  glVertex3f(0.1,3,-2);
+  glVertex3f(0.1,3, 2);
+  glEnd();
+
+
   glPopMatrix();
   /* WINGS END */
 
@@ -256,7 +355,7 @@ static void TieFighter(double x,double y,double z,double s,
   }
 
 
-  /* WINDOWS */
+  /* FRONT WINDOWS */
   glColor3d(0, 0, 0);
 
   glBegin(GL_QUADS);
@@ -357,19 +456,20 @@ static void TieFighter(double x,double y,double z,double s,
     glVertex3d(0.1 * Cos(th), 0.1 * Sin(th), 0.999);
   }
   glEnd();
-  /* WINDOWS END */
+  /* FRONT WINDOWS END */
 
   /* LASERS FRONT */
   glPushMatrix();
   glTranslated(0.3, -0.6, 0);
 
+  glBindTexture(GL_TEXTURE_2D,texture[5]);
   glBegin(GL_QUAD_STRIP);
   for (th = 0; th <= 360; th += inc)
   {
     glColor3d(0.6, 0.6, 0.6);
     glNormal3d(Cos(th), Sin(th), 0);
-    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.95);
-    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.6);
+    glTexCoord2f(0,th*0.0123+.05);glVertex3d(0.05 * Cos(th), 0.05 * Sin(th), 0.95);
+    glTexCoord2f(1,th*0.0123+.05);glVertex3d(0.05 * Cos(th), 0.05 * Sin(th), 0.6);
   }
   glEnd();
 
@@ -379,11 +479,11 @@ static void TieFighter(double x,double y,double z,double s,
     glBegin(GL_QUAD_STRIP);
     for (th=0;th<=360;th+=inc)
     {
-      glNormal3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
-      glVertex3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
+      glNormal3d(0.08*Sin(th)*Cos(ph), 0.08*Cos(th)*Cos(ph), 1 + 0.08*Sin(ph));
+      glVertex3d(0.08*Sin(th)*Cos(ph), 0.08*Cos(th)*Cos(ph), 1 + 0.08*Sin(ph));
 
-      glNormal3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
-      glVertex3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
+      glNormal3d(0.08*Sin(th)*Cos(ph+inc), 0.08*Cos(th)*Cos(ph+inc), 1 + 0.08*Sin(ph+inc));
+      glVertex3d(0.08*Sin(th)*Cos(ph+inc), 0.08*Cos(th)*Cos(ph+inc), 1 + 0.08*Sin(ph+inc));
        
     }
     glEnd();
@@ -394,13 +494,14 @@ static void TieFighter(double x,double y,double z,double s,
   glPushMatrix();
   glTranslated(-0.3, -0.6, 0);
 
+  glBindTexture(GL_TEXTURE_2D,texture[5]);
   glBegin(GL_QUAD_STRIP);
   for (th = 0; th <= 360; th += inc)
   {
     glColor3d(0.6, 0.6, 0.6);
     glNormal3d(Cos(th), Sin(th), 0);
-    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.95);
-    glVertex3d(0.08 * Cos(th), 0.08 * Sin(th), 0.6);
+    glTexCoord2f(0,th*0.0123+.05);glVertex3d(0.05 * Cos(th), 0.05 * Sin(th), 0.95);
+    glTexCoord2f(1,th*0.0123+.05);glVertex3d(0.05 * Cos(th), 0.05 * Sin(th), 0.6);
   }
   glEnd();
 
@@ -410,19 +511,271 @@ static void TieFighter(double x,double y,double z,double s,
     glBegin(GL_QUAD_STRIP);
     for (th=0;th<=360;th+=inc)
     {
-      glNormal3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
-      glVertex3d(0.1*Sin(th)*Cos(ph), 0.1*Cos(th)*Cos(ph), 1 + 0.1*Sin(ph));
+      glNormal3d(0.08*Sin(th)*Cos(ph), 0.08*Cos(th)*Cos(ph), 1 + 0.08*Sin(ph));
+      glVertex3d(0.08*Sin(th)*Cos(ph), 0.08*Cos(th)*Cos(ph), 1 + 0.08*Sin(ph));
 
-      glNormal3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
-      glVertex3d(0.1*Sin(th)*Cos(ph+inc), 0.1*Cos(th)*Cos(ph+inc), 1 + 0.1*Sin(ph+inc));
+      glNormal3d(0.08*Sin(th)*Cos(ph+inc), 0.08*Cos(th)*Cos(ph+inc), 1 + 0.08*Sin(ph+inc));
+      glVertex3d(0.08*Sin(th)*Cos(ph+inc), 0.08*Cos(th)*Cos(ph+inc), 1 + 0.08*Sin(ph+inc));
        
     }
     glEnd();
   }
+  glPopMatrix();
+  /* LASERS FRONT END */
+
+  /* BACK WINDOW */
+  glPushMatrix();
+
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += inc)
+  {
+    glColor3d(0.75, 0.75, 0.75);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glVertex3d(0.55 * Cos(th), 0.55 * Sin(th), -0.8);
+    glVertex3d(0.4 * Cos(th), 0.4 * Sin(th), -1.05);
+  }
+  glEnd();
+
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += inc)
+  {
+    glColor3d(0.6, 0.6, 0.6);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glVertex3d(0.4 * Cos(th), 0.4 * Sin(th), -1.05);
+    glVertex3d(0.2 * Cos(th), 0.2 * Sin(th), -0.8);
+  }
+  glEnd();
+  glBegin(GL_POLYGON);
+  glColor3d(0, 0, 0);
+  glNormal3d(0,0,-1);
+  glVertex3d(0, 0.18 , -1);
+  glVertex3d(0.21, 0.1 , -1);
+  glVertex3d(0.21, -0.1 , -1);
+  glVertex3d(0, -0.18 , -1);
+  glVertex3d(-0.21, -0.1 , -1);
+  glVertex3d(-0.21, 0.1 , -1);
+  glEnd();
+
+  glPopMatrix();
+  /* BACK WINDOW & LIGHTS END */
+
+
+  /* BACK LIGHTS */
+  glPushMatrix();
+  glTranslated(0.6, 0, -0.75);
+
+  // Boxes for lights
+  glBegin(GL_QUADS);
+  //  Front
+  glColor3f(0.4,0.4,0.4);
+  glNormal3f(0,0,+1);
+  glVertex3f(-0.1,-0.1, 0.1);
+  glVertex3f(+0.1,-0.1, 0.1);
+  glVertex3f(+0.1,+0.1, 0.1);
+  glVertex3f(-0.1,+0.1, 0.1);
+  //  Back
+  glColor3f(0.4,0.4,0.4);
+  glNormal3f(0,0,-1);
+  glVertex3f(+0.1,-0.1,-0.1);
+  glVertex3f(-0.1,-0.1,-0.1);
+  glVertex3f(-0.1,+0.1,-0.1);
+  glVertex3f(+0.1,+0.1,-0.1);
+  //  Right
+  glNormal3f(0,+1,0);
+  glColor3f(0.5,0.5,0.5);
+  glVertex3f(+0.1,-0.1,+0.1);
+  glVertex3f(+0.1,-0.1,-0.1);
+  glVertex3f(+0.1,+0.1,-0.1);
+  glVertex3f(+0.1,+0.1,+0.1);
+  //  Left
+  glColor3f(0.5,0.5,0.5);
+  glNormal3f(0,-1,0);
+  glVertex3f(-0.1,-0.1,-0.1);
+  glVertex3f(-0.1,-0.1,+0.1);
+  glVertex3f(-0.1,+0.1,+0.1);
+  glVertex3f(-0.1,+0.1,-0.1);
+  //  Top
+  glColor3f(0,0,0);
+  glNormal3f(-1,0,0);
+  glVertex3f(-0.1,+0.1,+0.1);
+  glVertex3f(+0.1,+0.1,+0.1);
+  glVertex3f(+0.1,+0.1,-0.1);
+  glVertex3f(-0.1,+0.1,-0.1);
+  //  Bottom
+  glColor3f(0,0,0);
+  glNormal3f(+1,0,0);
+  glVertex3f(-0.1,-0.1,-0.1);
+  glVertex3f(+0.1,-0.1,-0.1);
+  glVertex3f(+0.1,-0.1,+0.1);
+  glVertex3f(-0.1,-0.1,+0.1);
+  glEnd();
+
+  // 
+  // Lighting on the lights
+  // 
+  float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+  float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+  float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+  //  Light position
+  // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
+  float PositionLight1[]  = {0, 0 ,-0.5, 1.0};
+
+  //  Save transformation
+  glPushMatrix();
+
+  for (ph=-90;ph<90;ph+=inc)
+  {
+    glColor3d(1, 0.1, 0);
+    glBegin(GL_QUAD_STRIP);
+    for (th=0;th<=360;th+=inc)
+    {
+      glNormal3d(0.09*Sin(th)*Cos(ph), 0.09*Cos(th)*Cos(ph), -0.1 + 0.09*Sin(ph));
+      glVertex3d(0.09*Sin(th)*Cos(ph), 0.09*Cos(th)*Cos(ph), -0.1 + 0.09*Sin(ph));
+
+      glNormal3d(0.09*Sin(th)*Cos(ph+inc), 0.09*Cos(th)*Cos(ph+inc), -0.1 + 0.09*Sin(ph+inc));
+      glVertex3d(0.09*Sin(th)*Cos(ph+inc), 0.09*Cos(th)*Cos(ph+inc), -0.1 + 0.09*Sin(ph+inc));
+       
+    }
+    glEnd();
+  } 
+  glPopMatrix();
+
+
+
+
+
+  //  OpenGL should normalize normal vectors
+  glEnable(GL_NORMALIZE);
+  //  Enable lighting
+  glEnable(GL_LIGHTING);
+  //  Location of viewer for specular calculations
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+  //  glColor sets ambient and diffuse color materials
+  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+  glEnable(GL_COLOR_MATERIAL);
+  //  Enable light 0
+  glEnable(GL_LIGHT0);
+  //  Set ambient, diffuse, specular components and position of light 0
+  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+  glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
+  glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+  glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
 
   glPopMatrix();
 
-  /* LASERS FRONT END */
+
+  // Other light
+  glPushMatrix();
+  glTranslated(-0.6, 0, -0.75);
+
+  // Boxes for lights
+  glBegin(GL_QUADS);
+  //  Front
+  glColor3f(0.4,0.4,0.4);
+  glNormal3f(0,0,+1);
+  glVertex3f(-0.1,-0.1, 0.1);
+  glVertex3f(+0.1,-0.1, 0.1);
+  glVertex3f(+0.1,+0.1, 0.1);
+  glVertex3f(-0.1,+0.1, 0.1);
+  //  Back
+  glColor3f(0.4,0.4,0.4);
+  glNormal3f(0,0,-1);
+  glVertex3f(+0.1,-0.1,-0.1);
+  glVertex3f(-0.1,-0.1,-0.1);
+  glVertex3f(-0.1,+0.1,-0.1);
+  glVertex3f(+0.1,+0.1,-0.1);
+  //  Right
+  glNormal3f(0,+1,0);
+  glColor3f(0.5,0.5,0.5);
+  glVertex3f(+0.1,-0.1,+0.1);
+  glVertex3f(+0.1,-0.1,-0.1);
+  glVertex3f(+0.1,+0.1,-0.1);
+  glVertex3f(+0.1,+0.1,+0.1);
+  //  Left
+  glColor3f(0.5,0.5,0.5);
+  glNormal3f(0,-1,0);
+  glVertex3f(-0.1,-0.1,-0.1);
+  glVertex3f(-0.1,-0.1,+0.1);
+  glVertex3f(-0.1,+0.1,+0.1);
+  glVertex3f(-0.1,+0.1,-0.1);
+  //  Top
+  glColor3f(0,0,0);
+  glNormal3f(-1,0,0);
+  glVertex3f(-0.1,+0.1,+0.1);
+  glVertex3f(+0.1,+0.1,+0.1);
+  glVertex3f(+0.1,+0.1,-0.1);
+  glVertex3f(-0.1,+0.1,-0.1);
+  //  Bottom
+  glColor3f(0,0,0);
+  glNormal3f(+1,0,0);
+  glVertex3f(-0.1,-0.1,-0.1);
+  glVertex3f(+0.1,-0.1,-0.1);
+  glVertex3f(+0.1,-0.1,+0.1);
+  glVertex3f(-0.1,-0.1,+0.1);
+  glEnd();
+
+  // 
+  // Lighting on the lights
+  // 
+  // float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+  // float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+  // float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+  //  Light position
+  // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
+  float PositionLight2[]  = {0, 0 ,-0.5, 1.0};
+
+  //  Save transformation
+  glPushMatrix();
+
+  for (ph=-90;ph<90;ph+=inc)
+  {
+    glColor3d(1, 0.1, 0);
+    glBegin(GL_QUAD_STRIP);
+    for (th=0;th<=360;th+=inc)
+    {
+      glNormal3d(0.09*Sin(th)*Cos(ph), 0.09*Cos(th)*Cos(ph), -0.1 + 0.09*Sin(ph));
+      glVertex3d(0.09*Sin(th)*Cos(ph), 0.09*Cos(th)*Cos(ph), -0.1 + 0.09*Sin(ph));
+
+      glNormal3d(0.09*Sin(th)*Cos(ph+inc), 0.09*Cos(th)*Cos(ph+inc), -0.1 + 0.09*Sin(ph+inc));
+      glVertex3d(0.09*Sin(th)*Cos(ph+inc), 0.09*Cos(th)*Cos(ph+inc), -0.1 + 0.09*Sin(ph+inc));
+       
+    }
+    glEnd();
+  } 
+  glPopMatrix();
+
+
+
+
+
+  //  OpenGL should normalize normal vectors
+  glEnable(GL_NORMALIZE);
+  //  Enable lighting
+  glEnable(GL_LIGHTING);
+  //  Location of viewer for specular calculations
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+  //  glColor sets ambient and diffuse color materials
+  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+  glEnable(GL_COLOR_MATERIAL);
+  //  Enable light 0
+  glEnable(GL_LIGHT0);
+  //  Set ambient, diffuse, specular components and position of light 0
+  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+  glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
+  glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+  glLightfv(GL_LIGHT0,GL_POSITION,PositionLight2);
+
+
+  
+
+  glPopMatrix();
+
+  /* BACK LIGHTS END */
+
+
+
+
+
 
   TieFighterWing(2,0,0, 0,0,0, 0);
   TieFighterWing(-2,0,0, 0,1,0, 180);
@@ -490,7 +843,7 @@ static void drawScene(){
   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
 
-  // TieFighter(0,0,0,3, 0,0,0, 180);
+  // TieFighter(0,0,0,3, 0,0,0, 0);
   TieFighter(0 + Cos(zh), 0 + Sin(zh) * Cos(zh),0,3,   0,0,1,  3*Sin(zh));
 
 }
@@ -528,6 +881,7 @@ void display()
    //  Flat or smooth shading
    glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
 
+
    //  Draw scene
    drawScene();
 
@@ -535,13 +889,13 @@ void display()
    glWindowPos2i(5,5);
    Print("Angle=%d,%d  Dim=%.1f FOV=%d Projection=%s Light=%s",
      th,ph,dim,fov,mode?"Perpective":"Orthogonal",light?"On":"Off");
-   if (light)
-   {
-      glWindowPos2i(5,45);
-      Print("Model=%s LocalViewer=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",local?"On":"Off",distance,ylight);
-      glWindowPos2i(5,25);
-      Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",ambient,diffuse,specular,emission,shinyvec[0]);
-   }
+   // if (light)
+   // {
+   //    glWindowPos2i(5,45);
+   //    Print("Model=%s LocalViewer=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",local?"On":"Off",distance,ylight);
+   //    glWindowPos2i(5,25);
+   //    Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",ambient,diffuse,specular,emission,shinyvec[0]);
+   // }
 
    //  Render the scene and make it visible
    ErrCheck("display");
@@ -741,6 +1095,7 @@ int main(int argc,char* argv[])
    // Load all bmps
    // space = LoadTexBMP("textures/space.bmp");
    texture[1] = LoadTexBMP("textures/TIECockpit.bmp");
+   texture[5] = LoadTexBMP("textures/cast_iron.bmp");
    texture[6] = LoadTexBMP("textures/metal.bmp");
    texture[9] = LoadTexBMP("textures/wing.bmp");
 

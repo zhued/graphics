@@ -213,8 +213,8 @@ void display()
         //  Light position
         float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
         //  Draw light position as ball (still no lighting here)
-        glColor3f(1,1,1);
-        ball(Position[0],Position[1],Position[2] , 0.1);
+        // glColor3f(1,1,1);
+        // ball(Position[0],Position[1],Position[2] , 0.1);
         //  OpenGL should normalize normal vectors
         glEnable(GL_NORMALIZE);
         //  Enable lighting
