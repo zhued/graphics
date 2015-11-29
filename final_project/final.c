@@ -68,7 +68,9 @@ float ylight  =   4;  // Elevation of light
 // building correct vectors
 // Mathmatics found here:
 //    https://www.opengl.org/wiki/Calculating_a_Surface_Normal
-static void normal(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3){
+static void normal(double x1, double y1, double z1, 
+                  double x2, double y2, double z2, 
+                  double x3, double y3, double z3){
  // first vector
  double v1x = x2 - x1;
  double v1y = y2 - y1;
@@ -923,13 +925,6 @@ void display()
    glWindowPos2i(5,5);
    Print("Angle=%d,%d  Dim=%.1f FOV=%d Projection=%s Light=%s",
      th,ph,dim,fov,mode?"Perpective":"Orthogonal",light?"On":"Off");
-   // if (light)
-   // {
-   //    glWindowPos2i(5,45);
-   //    Print("Model=%s LocalViewer=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",local?"On":"Off",distance,ylight);
-   //    glWindowPos2i(5,25);
-   //    Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",ambient,diffuse,specular,emission,shinyvec[0]);
-   // }
 
    //  Render the scene and make it visible
    ErrCheck("display");
