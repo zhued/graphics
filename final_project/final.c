@@ -38,7 +38,7 @@ int ph=0;         //  Elevation of view angle
 int fov=60;       //  Field of view (for perspective)
 int light=1;      //  Lighting
 double asp=1;     //  Aspect ratio
-double dim=20.0;   //  Size of world
+double dim=300.0;   //  Size of world
 
 
 float sco=180;    //  Spot cutoff angle
@@ -46,10 +46,14 @@ float Exp=0;      //  Spot exponent
 unsigned int texture[18];
 unsigned int space;
 
+int live_env = 100;
+int pause = 0;
+
 // Light values
 int one       =   1;  // Unit value
 int distance  =   10;  // Light distance
-int inc       =  5;  // Ball increment
+int inc       =  10;  // Ball increment
+int small_inc =  5;
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 int emission  =   0;  // Emission intensity (%)
@@ -84,16 +88,11 @@ static void normal(double x1, double y1, double z1, double x2, double y2, double
  glNormal3f(nx,ny,nz);
 }
 
-// static void Vertex(double th,double ph)
-// {
-//    double x = Sin(th)*Cos(ph);
-//    double y = Cos(th)*Cos(ph);
-//    double z =         Sin(ph);
-//    //  For a sphere at the origin, the position
-//    //  and normal vectors are the same
-//    glNormal3d(x,y,z);
-//    glVertex3d(x,y,z);
-// }
+static void Vertex(double th,double ph)
+{
+   glNormal3d(Sin(th)*Cos(ph+inc),Cos(th)*Cos(ph+inc),Sin(ph+inc));
+   glVertex3d(Sin(th)*Cos(ph) , Sin(ph) , Cos(th)*Cos(ph));
+}
 
 // static void ball(double x,double y,double z,double r)
 // {
@@ -108,6 +107,15 @@ static void normal(double x1, double y1, double z1, double x2, double y2, double
 //    //  Undo transofrmations
 //    glPopMatrix();
 // }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -242,67 +250,48 @@ static void TieFighterWing(double x, double y, double z,
   glTexCoord2f(0.1491,1); glVertex3d(0.1,3,2);
   glTexCoord2f(0,0.4931); glVertex3d(0.1,0,3);
   glTexCoord2f(0.1491,0); glVertex3d(0.1,-3,2);
-
-  glNormal3d(1,0,0);
-  glTexCoord2f(0.7233,0); glVertex3d(0.1,-3,-2);
-  glTexCoord2f(0.8807,0.4931); glVertex3d(0.1,0,-3);
-  glTexCoord2f(0.7233,1); glVertex3d(0.1,3,-2);
-  glTexCoord2f(0.1491,1); glVertex3d(0.1,3,2);
-  glTexCoord2f(0,0.4931); glVertex3d(0.1,0,3);
-  glTexCoord2f(0.1491,0); glVertex3d(0.1,-3,2);
   glEnd();  
-
-  glBindTexture(GL_TEXTURE_2D,texture[6]);
+  // Fill it in!
   // 
+  // TODO: NORMALS AND MAKE SURE THEY ARE FACING RIGHT WAY
   // 
-  // 
-  // TODO: ADD TEXCOORD2F
-  // 
-  // 
-  // 
+  glBindTexture(GL_TEXTURE_2D,texture[1]);
   glBegin(GL_QUADS);
-  glColor3d(0.6, 0.6, 0.6);
-  glNormal3d(0,0,+1);
-  glVertex3f(0.0,3, 2);
-  glVertex3f(0.0,0, 3);
-  glVertex3f(0.1,0, 3);
-  glVertex3f(0.1,3, 2);
+  glNormal3d(0,+0.3,-1);
+  glTexCoord2f(0, 0);   glVertex3f(0.0,3, 2);
+  glTexCoord2f(10, 0);  glVertex3f(0.0,0, 3);
+  glTexCoord2f(10, 10); glVertex3f(0.1,0, 3);
+  glTexCoord2f(0, 10);  glVertex3f(0.1,3, 2);
 
-  glNormal3d(0,0,+1);
-  glVertex3f(0.0,0, 3);
-  glVertex3f(0.0,-3,2);
-  glVertex3f(0.1,-3,2);
-  glVertex3f(0.1,0, 3);
+  glNormal3d(0,-0.3,-1);
+  glTexCoord2f(0, 0);   glVertex3f(0.0,0, 3);
+  glTexCoord2f(10, 0);  glVertex3f(0.0,-3,2);
+  glTexCoord2f(10, 10); glVertex3f(0.1,-3,2);
+  glTexCoord2f(0, 10);  glVertex3f(0.1,0, 3);
 
-  glNormal3d(0,0,+1);
-  glVertex3f(0.0,0, 3);
-  glVertex3f(0.0,-3,2);
-  glVertex3f(0.1,-3,2);
-  glVertex3f(0.1,0, 3);
+  glNormal3d(0,-1,0);
+  glTexCoord2f(0, 0);   glVertex3f(0.0,-3, 2);
+  glTexCoord2f(10, 0);  glVertex3f(0.0,-3,-2);
+  glTexCoord2f(10, 10); glVertex3f(0.1,-3,-2);
+  glTexCoord2f(0, 10);  glVertex3f(0.1,-3, 2);
 
-  glNormal3d(0,0,+1);
-  glVertex3f(0.0,-3, 2);
-  glVertex3f(0.0,-3,-2);
-  glVertex3f(0.1,-3,-2);
-  glVertex3f(0.1,-3, 2);
+  glNormal3d(0,-0.3,-1);
+  glTexCoord2f(0, 0);   glVertex3f(0.0,-3, -2);
+  glTexCoord2f(10, 0);  glVertex3f(0.0,0,-3);
+  glTexCoord2f(10, 10); glVertex3f(0.1,0,-3);
+  glTexCoord2f(0, 10);  glVertex3f(0.1,-3, -2);
 
-  glNormal3d(0,0,+1);
-  glVertex3f(0.0,-3, -2);
-  glVertex3f(0.0,0,-3);
-  glVertex3f(0.1,0,-3);
-  glVertex3f(0.1,-3, -2);
+  glNormal3d(0,+0.3,-1);
+  glTexCoord2f(0, 0);   glVertex3f(0.0,0, -3);
+  glTexCoord2f(10, 0);  glVertex3f(0.0,3,-2);
+  glTexCoord2f(10, 10); glVertex3f(0.1,3,-2);
+  glTexCoord2f(0, 10);  glVertex3f(0.1,0, -3);
 
-  glNormal3d(0,0,+1);
-  glVertex3f(0.0,0, -3);
-  glVertex3f(0.0,3,-2);
-  glVertex3f(0.1,3,-2);
-  glVertex3f(0.1,0, -3);
-
-  glNormal3d(0,0,+1);
-  glVertex3f(0.0,3, 2);
-  glVertex3f(0.0,3,-2);
-  glVertex3f(0.1,3,-2);
-  glVertex3f(0.1,3, 2);
+  glNormal3d(0,+1,0);
+  glTexCoord2f(0, 0);   glVertex3f(0.0,3, 2);
+  glTexCoord2f(10, 0);  glVertex3f(0.0,3,-2);
+  glTexCoord2f(10, 10); glVertex3f(0.1,3,-2);
+  glTexCoord2f(0, 10);  glVertex3f(0.1,3, 2);
   glEnd();
 
 
@@ -344,12 +333,14 @@ static void TieFighter(double x,double y,double z,double s,
     for (th=0;th<=360;th+=2*inc)
     {
       glTexCoord2d(th/360.0,ph/180.0+0.5);
-      glNormal3d(Sin(th)*Cos(ph),Cos(th)*Cos(ph),Sin(ph));
-      glVertex3d(Sin(th)*Cos(ph),Cos(th)*Cos(ph),Sin(ph));
+      Vertex(th,ph);
+      // glNormal3d(Sin(th)*Cos(ph),Cos(th)*Cos(ph),Sin(ph));
+      // glVertex3d(Sin(th)*Cos(ph),Cos(th)*Cos(ph),Sin(ph));
 
       glTexCoord2d(th/360.0,(ph+inc)/180.0+0.5);
-      glNormal3d(Sin(th)*Cos(ph+inc),Cos(th)*Cos(ph+inc),Sin(ph+inc));
-      glVertex3d(Sin(th)*Cos(ph+inc),Cos(th)*Cos(ph+inc),Sin(ph+inc));
+      Vertex(th,ph+inc);
+      // glNormal3d(Sin(th)*Cos(ph+inc),Cos(th)*Cos(ph+inc),Sin(ph+inc));
+      // glVertex3d(Sin(th)*Cos(ph+inc),Cos(th)*Cos(ph+inc),Sin(ph+inc));
     }
     glEnd();
   }
@@ -472,6 +463,7 @@ static void TieFighter(double x,double y,double z,double s,
     glTexCoord2f(1,th*0.0123+.05);glVertex3d(0.05 * Cos(th), 0.05 * Sin(th), 0.6);
   }
   glEnd();
+
 
   for (ph=-90;ph<90;ph+=inc)
   {
@@ -610,18 +602,7 @@ static void TieFighter(double x,double y,double z,double s,
   glVertex3f(-0.1,-0.1,+0.1);
   glEnd();
 
-  // 
-  // Lighting on the lights
-  // 
-  float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-  float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-  float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
-  //  Light position
-  // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
-  float PositionLight1[]  = {0, 0 ,-0.5, 1.0};
-
-  //  Save transformation
-  glPushMatrix();
+  
 
   for (ph=-90;ph<90;ph+=inc)
   {
@@ -638,28 +619,6 @@ static void TieFighter(double x,double y,double z,double s,
     }
     glEnd();
   } 
-  glPopMatrix();
-
-
-
-
-
-  //  OpenGL should normalize normal vectors
-  glEnable(GL_NORMALIZE);
-  //  Enable lighting
-  glEnable(GL_LIGHTING);
-  //  Location of viewer for specular calculations
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-  //  glColor sets ambient and diffuse color materials
-  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-  glEnable(GL_COLOR_MATERIAL);
-  //  Enable light 0
-  glEnable(GL_LIGHT0);
-  //  Set ambient, diffuse, specular components and position of light 0
-  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-  glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-  glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-  glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
 
   glPopMatrix();
 
@@ -714,19 +673,6 @@ static void TieFighter(double x,double y,double z,double s,
   glVertex3f(-0.1,-0.1,+0.1);
   glEnd();
 
-  // 
-  // Lighting on the lights
-  // 
-  // float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-  // float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-  // float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
-  //  Light position
-  // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
-  float PositionLight2[]  = {0, 0 ,-0.5, 1.0};
-
-  //  Save transformation
-  glPushMatrix();
-
   for (ph=-90;ph<90;ph+=inc)
   {
     glColor3d(1, 0.1, 0);
@@ -742,38 +688,11 @@ static void TieFighter(double x,double y,double z,double s,
     }
     glEnd();
   } 
-  glPopMatrix();
-
-
-
-
-
-  //  OpenGL should normalize normal vectors
-  glEnable(GL_NORMALIZE);
-  //  Enable lighting
-  glEnable(GL_LIGHTING);
-  //  Location of viewer for specular calculations
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-  //  glColor sets ambient and diffuse color materials
-  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-  glEnable(GL_COLOR_MATERIAL);
-  //  Enable light 0
-  glEnable(GL_LIGHT0);
-  //  Set ambient, diffuse, specular components and position of light 0
-  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-  glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-  glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-  glLightfv(GL_LIGHT0,GL_POSITION,PositionLight2);
-
-
   
 
   glPopMatrix();
 
   /* BACK LIGHTS END */
-
-
-
 
 
 
@@ -797,6 +716,79 @@ static void TieFighter(double x,double y,double z,double s,
 
 
 
+
+
+
+
+
+
+static void rock(double x,double y,double z,double r)
+{
+  int th,ph;
+  //  Save transformation
+  glPushMatrix();
+  //  Offset, scale and rotate
+  glTranslated(x,y,z);
+  glScaled(r,r,r);
+  glColor3f(1,0,0);
+  for (ph=-90;ph<90;ph+=inc)
+  {
+  glBegin(GL_QUAD_STRIP);
+  for (th=0;th<=360;th+=inc)
+  {
+    glNormal3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+    glVertex3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+
+    glNormal3d(Sin(th)*Cos(ph+inc), Cos(th)*Cos(ph+inc), Sin(ph+inc));
+    glVertex3d(Sin(th)*Cos(ph+inc), Cos(th)*Cos(ph+inc), Sin(ph+inc));
+     
+  }
+  glEnd();
+  }
+  //  Undo transofrmations
+  glPopMatrix();
+}
+
+static void space_env() {
+
+  glEnable(GL_TEXTURE_2D);
+
+  // Save matrix and adjust position
+  glPushMatrix();
+
+  int i;
+  // Builds space_env in panels for animation
+  for (i = 5000; i >= -5000; i-=1000) {
+    // printf("%d\n", i);
+  // for (i = 100; i >= -100; i-=10) {
+
+    rock(50,50,100+i+live_env , 50);
+    rock(50,-60,10+i+live_env , 10);
+
+    // glBindTexture(GL_TEXTURE_2D, texture[1]);
+    //   // Floor
+    // glBegin(GL_QUADS);
+    // glNormal3d(0, 1, 0);
+    // glTexCoord2f(0, 0); glVertex3d(-30, 0, i + live_env);
+    // glTexCoord2f(1, 0); glVertex3d(30, 0, i + live_env);
+    // glTexCoord2f(1, 4); glVertex3d(30, 0, i - 1000 + live_env);
+    // glTexCoord2f(0, 4); glVertex3d(-30, 0, i - 1000 + live_env);
+    // glEnd();
+    // rock(-50,50,900+i+live_env , 10);
+    // rock(-50,-50,10+i+live_env , 10);
+
+    // rock(-10,-50+i+live_env,10 , 10);
+
+    // TieFighter(10,50,10+i+live_env,3, 0,0,0, 0);
+    // TieFighter(10,50,1000+i+live_env,3, 0,0,0, 0);
+  }
+
+
+   glPopMatrix();
+
+   glDisable(GL_TEXTURE_2D);
+
+}
 
 
 
@@ -837,14 +829,62 @@ static void TieFighter(double x,double y,double z,double s,
  *  Draw out the scene of the neighboorhood (houses, roads, ground)
  */
 static void drawScene(){
+  // 
+  // Lighting on the lights
+  // 
+  // float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+  // float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+  // float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+  // // float Emission[]  = {0.3, 0.2, 0.2, 0.0};
+  // //  Light position
+  // // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
+  // glColor3f(1,1,1);
+  // // float PositionLight1[]  = {-2.5, 0 ,-2, 1.0};
+  // // ball(PositionLight1[0],PositionLight1[1],PositionLight1[2] , 0.1);
+  // // float PositionLight2[]  = {2.5, 0 ,-2, 1.0};
+  // // ball(PositionLight2[0],PositionLight2[1],PositionLight2[2] , 0.1);
+  // float PositionLight1[]  = {5, 0 ,10, 5.0};
+  // ball(PositionLight1[0],PositionLight1[1],PositionLight1[2] , 0.1);
+
+  // //  OpenGL should normalize normal vectors
+  // glEnable(GL_NORMALIZE);
+  // //  Enable lighting
+  // glEnable(GL_LIGHTING);
+  // //  Location of viewer for specular calculations
+  // glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+  // //  glColor sets ambient and diffuse color materials
+  // glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+  // glEnable(GL_COLOR_MATERIAL);
+  // //  Enable light 0
+  // glEnable(GL_LIGHT0);
+  // // glEnable(GL_LIGHT1);
+  // //  Set ambient, diffuse, specular components and position of light 0
+  // glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+  // glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
+  // glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+
+  // // glLightfv(GL_LIGHT1,GL_AMBIENT ,Ambient);
+  // // glLightfv(GL_LIGHT1,GL_DIFFUSE ,Diffuse);
+  // // glLightfv(GL_LIGHT1,GL_SPECULAR,Specular);
+
+  // glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
+  // // glLightfv(GL_LIGHT1,GL_POSITION,PositionLight2);
+
+  // 
+  // END Lighting on the lights
+  // 
+
   float white[] = {1,1,1,1};
   float black[] = {0,0,0,1};
   glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
 
+  space_env();
+
+  // Used same concept similar to the circling ball of light in example from class
   // TieFighter(0,0,0,3, 0,0,0, 0);
-  TieFighter(0 + Cos(zh), 0 + Sin(zh) * Cos(zh),0,3,   0,0,1,  3*Sin(zh));
+  TieFighter(0 + 50*Cos(zh), 0 + 50*Sin(zh) * Cos(zh),0,50,   0,0,1,  5*Sin(zh));
 
 }
 
@@ -870,12 +910,6 @@ void display()
       double Ey = +2*dim        *Sin(ph);
       double Ez = +2*dim*Cos(th)*Cos(ph);
       gluLookAt(Ex,Ey,Ez , 0,0,0 , 0,Cos(ph),0);
-   }
-   //  Orthogonal - set world orientation
-   else
-   {
-      glRotatef(ph,1,0,0);
-      glRotatef(th,0,1,0);
    }
 
    //  Flat or smooth shading
@@ -935,6 +969,15 @@ void idle()
    //  Elapsed time in seconds
    double t = glutGet(GLUT_ELAPSED_TIME)/1000.0;
    zh = fmod(90*t,360.0);
+
+  // added live environment to make things move
+  if (!pause) {
+    if (live_env < -2000){
+       live_env = 0;
+    }
+    live_env -= 3;
+  }
+
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
 }
@@ -956,12 +999,6 @@ void special(int key,int x,int y)
    //  Down arrow key - decrease elevation by 5 degrees
    else if (key == GLUT_KEY_DOWN)
       ph -= 5;
-   //  PageUp key - increase dim
-   else if (key == GLUT_KEY_PAGE_DOWN)
-      dim += 0.1;
-   //  PageDown key - decrease dim
-   else if (key == GLUT_KEY_PAGE_UP && dim>1)
-      dim -= 0.1;
    //  Keep angles to +/-360 degrees
    th %= 360;
    ph %= 360;
@@ -985,13 +1022,13 @@ void key(unsigned char ch,int x,int y)
   //  Toggle lighting
   else if (ch == 'l' || ch == 'L')
     light = 1-light;
-  //  Switch projection mode
-  else if (ch == 'p' || ch == 'P')
-    mode = 1-mode;
-  //  Toggle light movement
+  // //  Switch projection mode
+  // else if (ch == 'p' || ch == 'P')
+  //   mode = 1-mode;
+  //  Toggle  movement
   else if (ch == 'm' || ch == 'M')
     move = 1-move;
-  //  Move light
+  //  Move TIE Fighter
   else if (ch == '<')
     zh += 1;
   else if (ch == '>')
@@ -1002,9 +1039,9 @@ void key(unsigned char ch,int x,int y)
   else if (ch == '+' && ch<179)
     fov++;
   else if (ch=='d' && dim>0)
-    dim -= 2;
-  else if (ch=='D' && dim<100)
-    dim += 2;
+    dim -= 10;
+  else if (ch=='D' && dim<2000)
+    dim += 10;
    // //  Light elevation
    // else if (ch=='[')
    //    ylight -= 0.1;
@@ -1035,20 +1072,20 @@ void key(unsigned char ch,int x,int y)
    //    shininess -= 1;
    // else if (ch=='N' && shininess<7)
    //    shininess += 1;
-    //  Smooth color model
-   else if (ch == '1')
-      smooth = 1-smooth;
-   //  Local Viewer
-   else if (ch == '2')
-      local = 1-local;
-   else if (ch == '3')
-      distance = (distance==2) ? 10 : 2;
-   //  Toggle ball increment
-   else if (ch == '4')
-      inc = (inc==10)?3:10;
-   //  Flip sign
-   else if (ch == '5')
-      one = -one;
+   //   // Smooth color model
+   // else if (ch == '1')
+   //    smooth = 1-smooth;
+   // //  Local Viewer
+   // else if (ch == '2')
+   //    local = 1-local;
+   // else if (ch == '3')
+   //    distance = (distance==2) ? 10 : 2;
+   // //  Toggle ball increment
+   // else if (ch == '4')
+   //    inc = (inc==10)?3:10;
+   // //  Flip sign
+   // else if (ch == '5')
+   //    one = -one;
 
    //  Translate shininess power to value (-1 => 0)
    shinyvec[0] = shininess<0 ? 0 : pow(2.0,shininess);
