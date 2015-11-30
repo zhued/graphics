@@ -38,22 +38,23 @@ int ph=0;         //  Elevation of view angle
 int fov=60;       //  Field of view (for perspective)
 int light=1;      //  Lighting
 double asp=1;     //  Aspect ratio
-double dim=300.0;   //  Size of world
+double dim=500.0;   //  Size of world
 
 
 float sco=180;    //  Spot cutoff angle
 float Exp=0;      //  Spot exponent
 unsigned int texture[18];
 unsigned int space;
+int live_env = 0;
 
 int pause = 0;
-static double env_offset=8000;
+// static double env_offset=8000;
 
 // Light values
 int one       =   1;  // Unit value
 int distance  =   10;  // Light distance
 int inc       =  10;  // Ball increment
-int small_inc =  5;
+int big_inc   =  30;
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 int emission  =   0;  // Emission intensity (%)
@@ -96,28 +97,14 @@ static void Vertex(double th,double ph)
    glVertex3d(Sin(th)*Cos(ph) , Sin(ph) , Cos(th)*Cos(ph));
 }
 
-// static void ball(double x,double y,double z,double r)
-// {
-//    //  Save transformation
-//    glPushMatrix();
-//    //  Offset, scale and rotate
-//    glTranslated(x,y,z);
-//    glScaled(r,r,r);
-//    //  Yellow ball
-//    glColor3f(1,1,0);
-//    glutSolidSphere(1.0,16,16);
-//    //  Undo transofrmations
-//    glPopMatrix();
+// void timer(int v) {
+//   env_offset -= 50;
+//   if (env_offset < -10000.0) {
+//     env_offset += 18000.0;
+//   }
+//   glutPostRedisplay();
+//   glutTimerFunc(1, timer, v);
 // }
-
-void timer(int v) {
-  env_offset -= 50;
-  if (env_offset < -10000.0) {
-    env_offset += 18000.0;
-  }
-  glutPostRedisplay();
-  glutTimerFunc(1, timer, v);
-}
 
 
 
@@ -729,35 +716,39 @@ static void TieFighter(double x,double y,double z,double s,
 
 
 
-
-
-static void rock(double x,double y,double z,double r)
+static void rock(double x,double y,double z,double s, 
+                double rx, double ry, double rz, double angle)
 {
   int th,ph;
   //  Save transformation
   glPushMatrix();
   //  Offset, scale and rotate
   glTranslated(x,y,z);
-  glScaled(r,r,r);
-  glColor3f(1,0,0);
-  for (ph=-90;ph<90;ph+=inc)
+  glRotated(angle, rx, ry, rz);
+  glScaled(s,s,s);
+  glColor3f(1,1,1)
+  ;
+  for (ph=-90;ph<90;ph+=big_inc)
   {
-  glBegin(GL_QUAD_STRIP);
-  for (th=0;th<=360;th+=inc)
-  {
-    glNormal3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
-    glVertex3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+    glBegin(GL_QUAD_STRIP);
+    for (th=0;th<=360;th+=big_inc)
+    {
+      glNormal3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+      glVertex3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
 
-    glNormal3d(Sin(th)*Cos(ph+inc), Cos(th)*Cos(ph+inc), Sin(ph+inc));
-    glVertex3d(Sin(th)*Cos(ph+inc), Cos(th)*Cos(ph+inc), Sin(ph+inc));
-     
-  }
-  glEnd();
+      glNormal3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
+      glVertex3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
+       
+    }
+    glEnd();
   }
   //  Undo transofrmations
   glPopMatrix();
 }
 
+/*
+*   lots of rocks flying around
+*/
 static void space_env() {
 
   glEnable(GL_TEXTURE_2D);
@@ -765,29 +756,31 @@ static void space_env() {
   // Save matrix and adjust position
   glPushMatrix();
 
-  int i;
 
 
-  rock(200,300,env_offset , 50);
-  rock(200,300,3000+env_offset , 50);
+  rock(200,-300,8000-live_env , 50, 0,0,0, 0);
+  rock(200,300,6000-live_env , 100, 0,0,0, 0);
+  rock(-200,-300,7000-live_env , 100, 0,0,0, 0);
+  rock(-200,-300,16000-live_env , 100, 0,0,0, 0);
+  rock(-500,-600,12000-live_env , 50, 0,0,0, 0);
+  rock(700,-600,11000-live_env , 200, 0,0,0, 0);
+  rock(0700,800,18000-live_env , 200, 0,0,0, 0);
+  
+
+
+  // int i;
+
+  // rock(200,300,env_offset , 50);
+  // rock(200,300,3000+env_offset , 50);
 
   // Builds space_env in panels for animation
-  // for (i = 5000; i >= -5000; i-=1000) {
+  // for (i = 10000; i >= -10000; i-=1000) {
     // printf("%d\n", i);
   // for (i = 100; i >= -100; i-=10) {
 
     // rock(200,300,i , 50);
     // rock(-250,-360,10+i+live_env , 10);
 
-    // glBindTexture(GL_TEXTURE_2D, texture[1]);
-    //   // Floor
-    // glBegin(GL_QUADS);
-    // glNormal3d(0, 1, 0);
-    // glTexCoord2f(0, 0); glVertex3d(-30, 0, i + live_env);
-    // glTexCoord2f(1, 0); glVertex3d(30, 0, i + live_env);
-    // glTexCoord2f(1, 4); glVertex3d(30, 0, i - 1000 + live_env);
-    // glTexCoord2f(0, 4); glVertex3d(-30, 0, i - 1000 + live_env);
-    // glEnd();
     // rock(-50,50,900+i+live_env , 10);
     // rock(-50,-50,10+i+live_env , 10);
 
@@ -803,23 +796,6 @@ static void space_env() {
    glDisable(GL_TEXTURE_2D);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -882,7 +858,7 @@ static void drawScene(){
   // // glLightfv(GL_LIGHT1,GL_SPECULAR,Specular);
 
   // glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
-  // // glLightfv(GL_LIGHT1,GL_POSITION,PositionLight2);
+  // // // glLightfv(GL_LIGHT1,GL_POSITION,PositionLight2);
 
   // 
   // END Lighting on the lights
@@ -966,8 +942,6 @@ void display()
 
 
 
-
-
 /*
  *  GLUT calls this routine when the window is resized
  */
@@ -976,6 +950,8 @@ void idle()
    //  Elapsed time in seconds
    double t = glutGet(GLUT_ELAPSED_TIME)/1000.0;
    zh = fmod(90*t,360.0);
+
+   live_env = fmod(2000*t, 20000);
 
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
@@ -1041,6 +1017,8 @@ void key(unsigned char ch,int x,int y)
     dim -= 10;
   else if (ch=='D' && dim<2000)
     dim += 10;
+  else if (ch==' ')
+    dim -= 10;
    // //  Light elevation
    // else if (ch=='[')
    //    ylight -= 0.1;
@@ -1122,7 +1100,7 @@ int main(int argc,char* argv[])
    glutCreateWindow("Final - Tie Fighter - Edward Zhu");
    //  Set callbacks
    glutDisplayFunc(display);
-   glutTimerFunc(100, timer, 0);
+   // glutTimerFunc(100, timer, 0);
    glutReshapeFunc(reshape);
    glutSpecialFunc(special);
    glutKeyboardFunc(key);
