@@ -46,8 +46,9 @@ float Exp=0;      //  Spot exponent
 unsigned int texture[18];
 unsigned int space;
 int live_env = 0;
+int laser_animation = 60;
+int trigger_laser = 0;
 
-int pause = 0;
 // static double env_offset=8000;
 
 // Light values
@@ -115,6 +116,88 @@ static void Vertex(double th,double ph)
 
 
 
+
+static void laserbeam(double x,double y,double z,double s, 
+                double rx, double ry, double rz, double angle)
+{
+  // int th,ph;
+  // //  Save transformation
+  // glPushMatrix();
+  // //  Offset, scale and rotate
+  // glTranslated(x,y,z);
+  // glRotated(angle, rx, ry, rz);
+  // glScaled(s,s,s);
+  // glColor3f(1,1,1);
+  // for (ph=-90;ph<90;ph+=big_inc)
+  // {
+  //   glBegin(GL_QUAD_STRIP);
+  //   for (th=0;th<=360;th+=big_inc)
+  //   {
+  //     glNormal3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+  //     glVertex3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+
+  //     glNormal3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
+  //     glVertex3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
+       
+  //   }
+  //   glEnd();
+  // }
+  // //  Undo transofrmations
+  // glPopMatrix();
+  int th;
+  //  Save transformation
+  glPushMatrix();
+  //  Offset, scale and rotate
+  glTranslated(x,y,z);
+  glRotated(angle, rx, ry, rz);
+  glScaled(s,s,s);
+  glColor3f(1,1,1);
+
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += 5)
+  {
+    glColor3d(0.5, 0.5, 0.5);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 0);
+    glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 10);
+  }
+  glEnd();
+  
+  //  Undo transofrmations
+  glPopMatrix();
+}
+
+
+/*
+*   FIRE ZEE LAZARS
+*     THIS TOOK WAY TOO LONG TO FIGURE OUT HOW TO IMPLEMENT
+*/
+static void fire_laser() {
+
+  glEnable(GL_TEXTURE_2D);
+
+  // Save matrix and adjust position
+  glPushMatrix();
+
+  if (trigger_laser == 1)
+  {
+    if(laser_animation < 2000){
+      laser_animation += 100;
+      laserbeam(-15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
+      laserbeam(15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
+    } else {
+      laser_animation = 60;
+      trigger_laser = 0;
+    }
+  }
+  
+  // rock(0,0,100 , 10, 0,0,0, 0);
+
+  glPopMatrix();
+
+  glDisable(GL_TEXTURE_2D);
+
+}
 
 
 
@@ -716,6 +799,12 @@ static void TieFighter(double x,double y,double z,double s,
 
 
 
+
+
+
+
+
+
 static void rock(double x,double y,double z,double s, 
                 double rx, double ry, double rz, double angle)
 {
@@ -726,8 +815,7 @@ static void rock(double x,double y,double z,double s,
   glTranslated(x,y,z);
   glRotated(angle, rx, ry, rz);
   glScaled(s,s,s);
-  glColor3f(1,1,1)
-  ;
+  glColor3f(1,1,1);
   for (ph=-90;ph<90;ph+=big_inc)
   {
     glBegin(GL_QUAD_STRIP);
@@ -745,6 +833,8 @@ static void rock(double x,double y,double z,double s,
   //  Undo transofrmations
   glPopMatrix();
 }
+
+
 
 /*
 *   lots of rocks flying around
@@ -766,29 +856,6 @@ static void space_env() {
   rock(700,-600,11000-live_env , 200, 0,0,0, 0);
   rock(0700,800,18000-live_env , 200, 0,0,0, 0);
   
-
-
-  // int i;
-
-  // rock(200,300,env_offset , 50);
-  // rock(200,300,3000+env_offset , 50);
-
-  // Builds space_env in panels for animation
-  // for (i = 10000; i >= -10000; i-=1000) {
-    // printf("%d\n", i);
-  // for (i = 100; i >= -100; i-=10) {
-
-    // rock(200,300,i , 50);
-    // rock(-250,-360,10+i+live_env , 10);
-
-    // rock(-50,50,900+i+live_env , 10);
-    // rock(-50,-50,10+i+live_env , 10);
-
-    // rock(-10,-50+i+live_env,10 , 10);
-
-    // TieFighter(10,50,10+i+live_env,3, 0,0,0, 0);
-    // TieFighter(10,50,1000+i+live_env,3, 0,0,0, 0);
-  // }
 
 
    glPopMatrix();
@@ -876,6 +943,9 @@ static void drawScene(){
   // TieFighter(0,0,0,3, 0,0,0, 0);
   TieFighter(0 + 50*Cos(zh), 0 + 50*Sin(zh) * Cos(zh),0,50,   0,0,1,  5*Sin(zh));
 
+
+  fire_laser();
+
 }
 
 /*
@@ -947,14 +1017,19 @@ void display()
  */
 void idle()
 {
-   //  Elapsed time in seconds
-   double t = glutGet(GLUT_ELAPSED_TIME)/1000.0;
-   zh = fmod(90*t,360.0);
+  //  Elapsed time in seconds
+  double t = glutGet(GLUT_ELAPSED_TIME)/1000.0;
+  zh = fmod(90*t,360.0);
 
-   live_env = fmod(2000*t, 20000);
+  live_env = fmod(2000*t, 20000);
+  // laser_animation = fmod(500*t, 1000);
+  // if(laser_animation > 1000){
+  //   laser_animation = 0;
+  // }
+  // laser_animation += 1;
 
-   //  Tell GLUT it is necessary to redisplay the scene
-   glutPostRedisplay();
+  //  Tell GLUT it is necessary to redisplay the scene
+  glutPostRedisplay();
 }
 
 /*
@@ -1018,51 +1093,7 @@ void key(unsigned char ch,int x,int y)
   else if (ch=='D' && dim<2000)
     dim += 10;
   else if (ch==' ')
-    dim -= 10;
-   // //  Light elevation
-   // else if (ch=='[')
-   //    ylight -= 0.1;
-   // else if (ch==']')
-   //    ylight += 0.1;
-   // //  Ambient level
-   // else if (ch=='a' && ambient>0)
-   //    ambient -= 5;
-   // else if (ch=='A' && ambient<100)
-   //    ambient += 5;
-   // //  Diffuse level
-   // else if (ch=='d' && diffuse>0)
-   //    diffuse -= 5;
-   // else if (ch=='D' && diffuse<100)
-   //    diffuse += 5;
-   // //  Specular level
-   // else if (ch=='s' && specular>0)
-   //    specular -= 5;
-   // else if (ch=='S' && specular<100)
-   //    specular += 5;
-   // //  Emission level
-   // else if (ch=='e' && emission>0)
-   //    emission -= 5;
-   // else if (ch=='E' && emission<100)
-   //    emission += 5;
-   // //  Shininess level
-   // else if (ch=='n' && shininess>-1)
-   //    shininess -= 1;
-   // else if (ch=='N' && shininess<7)
-   //    shininess += 1;
-   //   // Smooth color model
-   // else if (ch == '1')
-   //    smooth = 1-smooth;
-   // //  Local Viewer
-   // else if (ch == '2')
-   //    local = 1-local;
-   // else if (ch == '3')
-   //    distance = (distance==2) ? 10 : 2;
-   // //  Toggle ball increment
-   // else if (ch == '4')
-   //    inc = (inc==10)?3:10;
-   // //  Flip sign
-   // else if (ch == '5')
-   //    one = -one;
+    trigger_laser = 1;
 
    //  Translate shininess power to value (-1 => 0)
    shinyvec[0] = shininess<0 ? 0 : pow(2.0,shininess);
