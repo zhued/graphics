@@ -33,18 +33,18 @@
 int axes=1;       //  Display axes
 int mode=1;       //  Projection mode
 int move=1;       //  Move light
-int th=0;         //  Azimuth of view angle
-int ph=0;         //  Elevation of view angle
+int th=15;         //  Azimuth of view angle
+int ph=25;         //  Elevation of view angle
 int fov=60;       //  Field of view (for perspective)
 int light=1;      //  Lighting
 double asp=1;     //  Aspect ratio
-double dim=500.0;   //  Size of world
+double dim=600.0;   //  Size of world
 
 
 float sco=180;    //  Spot cutoff angle
 float Exp=0;      //  Spot exponent
 unsigned int texture[18];
-unsigned int space;
+unsigned int space[2];
 int live_env = 0;
 int laser_animation = 60;
 int trigger_laser = 0;
@@ -114,36 +114,9 @@ static void Vertex(double th,double ph)
 
 
 
-
-
-
 static void laserbeam(double x,double y,double z,double s, 
                 double rx, double ry, double rz, double angle)
 {
-  // int th,ph;
-  // //  Save transformation
-  // glPushMatrix();
-  // //  Offset, scale and rotate
-  // glTranslated(x,y,z);
-  // glRotated(angle, rx, ry, rz);
-  // glScaled(s,s,s);
-  // glColor3f(1,1,1);
-  // for (ph=-90;ph<90;ph+=big_inc)
-  // {
-  //   glBegin(GL_QUAD_STRIP);
-  //   for (th=0;th<=360;th+=big_inc)
-  //   {
-  //     glNormal3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
-  //     glVertex3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
-
-  //     glNormal3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
-  //     glVertex3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
-       
-  //   }
-  //   glEnd();
-  // }
-  // //  Undo transofrmations
-  // glPopMatrix();
   int th;
   //  Save transformation
   glPushMatrix();
@@ -151,17 +124,20 @@ static void laserbeam(double x,double y,double z,double s,
   glTranslated(x,y,z);
   glRotated(angle, rx, ry, rz);
   glScaled(s,s,s);
-  glColor3f(1,1,1);
+  glColor3f(0,0,1);
 
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texture[10]);
   glBegin(GL_QUAD_STRIP);
   for (th = 0; th <= 360; th += 5)
   {
     glColor3d(0.5, 0.5, 0.5);
     glNormal3d(Cos(th), Sin(th), 0);
-    glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 0);
-    glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 10);
+    glTexCoord2f(0,th*0.0123);glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 0);
+    glTexCoord2f(1,th*0.0123);glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 50);
   }
   glEnd();
+  glDisable(GL_TEXTURE_2D);
   
   //  Undo transofrmations
   glPopMatrix();
@@ -174,28 +150,57 @@ static void laserbeam(double x,double y,double z,double s,
 */
 static void fire_laser() {
 
-  glEnable(GL_TEXTURE_2D);
+  // 
+  // Lighting on the lights
+  // 
+  float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+  float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+  float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+  //  Light position
+  // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
+  glColor3f(1,1,1);
+  
+
 
   // Save matrix and adjust position
   glPushMatrix();
 
   if (trigger_laser == 1)
   {
-    if(laser_animation < 2000){
+    if(laser_animation < 3000){
       laser_animation += 100;
       laserbeam(-15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
       laserbeam(15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
+      
     } else {
       laser_animation = 60;
       trigger_laser = 0;
     }
   }
-  
-  // rock(0,0,100 , 10, 0,0,0, 0);
-
+  float PositionLight1[] = {0 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),1500-(laser_animation/2), 5.0}; 
   glPopMatrix();
 
-  glDisable(GL_TEXTURE_2D);
+
+
+  //  OpenGL should normalize normal vectors
+  glEnable(GL_NORMALIZE);
+  //  Enable lighting
+  glEnable(GL_LIGHTING);
+  //  Location of viewer for specular calculations
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+  //  glColor sets ambient and diffuse color materials
+  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+  glEnable(GL_COLOR_MATERIAL);
+  //  Enable light 0
+  glEnable(GL_LIGHT0);
+  // glEnable(GL_LIGHT1);
+  //  Set ambient, diffuse, specular components and position of light 0
+  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+  glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
+  glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+
+  glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
+  
 
 }
 
@@ -206,51 +211,65 @@ static void fire_laser() {
 
 
 // From class examples -  Sky
-// static void Space(double D)
-// {
-//    glColor3f(1,1,1);
-//    glEnable(GL_TEXTURE_2D);
+static void Space(double D)
+{
+  glPushMatrix();
+  glRotated(180, 0, 1, 0);
+  glColor3f(1,1,1);
+  glEnable(GL_TEXTURE_2D);
 
-//    //  Sides
-//    glBindTexture(GL_TEXTURE_2D,space);
-//    glBegin(GL_QUADS);
-//    glTexCoord2f(0.00,0); glVertex3f(-D,-D,-D);
-//    glTexCoord2f(0.25,0); glVertex3f(+D,-D,-D);
-//    glTexCoord2f(0.25,1); glVertex3f(+D,+D,-D);
-//    glTexCoord2f(0.00,1); glVertex3f(-D,+D,-D);
 
-//    glTexCoord2f(0.25,0); glVertex3f(+D,-D,-D);
-//    glTexCoord2f(0.50,0); glVertex3f(+D,-D,+D);
-//    glTexCoord2f(0.50,1); glVertex3f(+D,+D,+D);
-//    glTexCoord2f(0.25,1); glVertex3f(+D,+D,-D);
+  //  Top and bottom
+  glBindTexture(GL_TEXTURE_2D,space[0]);
+   glBegin(GL_QUADS);
+   glTexCoord2f(0,0); glVertex3f(+D,+D,-D);
+   glTexCoord2f(1,0); glVertex3f(+D,+D,+D);
+   glTexCoord2f(1,1); glVertex3f(-D,+D,+D);
+   glTexCoord2f(0,1); glVertex3f(-D,+D,-D);
+   glEnd();
 
-//    glTexCoord2f(0.50,0); glVertex3f(+D,-D,+D);
-//    glTexCoord2f(0.75,0); glVertex3f(-D,-D,+D);
-//    glTexCoord2f(0.75,1); glVertex3f(-D,+D,+D);
-//    glTexCoord2f(0.50,1); glVertex3f(+D,+D,+D);
+   glBegin(GL_QUADS);
+   glTexCoord2f(0,0); glVertex3f(-D,-D,+D);
+   glTexCoord2f(1,0); glVertex3f(+D,-D,+D);
+   glTexCoord2f(1,1); glVertex3f(+D,-D,-D);
+   glTexCoord2f(0,1); glVertex3f(-D,-D,-D);
+   glEnd();
 
-//    glTexCoord2f(0.75,0); glVertex3f(-D,-D,+D);
-//    glTexCoord2f(1.00,0); glVertex3f(-D,-D,-D);
-//    glTexCoord2f(1.00,1); glVertex3f(-D,+D,-D);
-//    glTexCoord2f(0.75,1); glVertex3f(-D,+D,+D);
-//    glEnd();
+  //  Sides
+  glBindTexture(GL_TEXTURE_2D,space[1]);
+   glBegin(GL_QUADS);
+   glTexCoord2f(0,0); glVertex3f(-D,-D,-D);
+   glTexCoord2f(1,0); glVertex3f(+D,-D,-D);
+   glTexCoord2f(1,1); glVertex3f(+D,+D,-D);
+   glTexCoord2f(0,1); glVertex3f(-D,+D,-D);
+   glEnd();
 
-//    //  Top and bottom
-//    glBindTexture(GL_TEXTURE_2D,sky[1]);
-//    glBegin(GL_QUADS);
-//    glTexCoord2f(0.0,0); glVertex3f(+D,+D,-D);
-//    glTexCoord2f(0.5,0); glVertex3f(+D,+D,+D);
-//    glTexCoord2f(0.5,1); glVertex3f(-D,+D,+D);
-//    glTexCoord2f(0.0,1); glVertex3f(-D,+D,-D);
+   glBegin(GL_QUADS);
+   glTexCoord2f(0,0); glVertex3f(+D,-D,-D);
+   glTexCoord2f(1,0); glVertex3f(+D,-D,+D);
+   glTexCoord2f(1,1); glVertex3f(+D,+D,+D);
+   glTexCoord2f(0,1); glVertex3f(+D,+D,-D);
+   glEnd();
 
-//    glTexCoord2f(1.0,1); glVertex3f(-D,-D,+D);
-//    glTexCoord2f(0.5,1); glVertex3f(+D,-D,+D);
-//    glTexCoord2f(0.5,0); glVertex3f(+D,-D,-D);
-//    glTexCoord2f(1.0,0); glVertex3f(-D,-D,-D);
-//    glEnd();
+   glBegin(GL_QUADS);
+   glTexCoord2f(0,0); glVertex3f(+D,-D,+D);
+   glTexCoord2f(1,0); glVertex3f(-D,-D,+D);
+   glTexCoord2f(1,1); glVertex3f(-D,+D,+D);
+   glTexCoord2f(0,1); glVertex3f(+D,+D,+D);
+   glEnd();
 
-//    glDisable(GL_TEXTURE_2D);
-// }
+   glBegin(GL_QUADS);
+   glTexCoord2f(0,0); glVertex3f(-D,-D,+D);
+   glTexCoord2f(1,0); glVertex3f(-D,-D,-D);
+   glTexCoord2f(1,1); glVertex3f(-D,+D,-D);
+   glTexCoord2f(0,1); glVertex3f(-D,+D,+D);
+   glEnd();
+
+
+
+   glDisable(GL_TEXTURE_2D);
+   glPopMatrix();
+}
 
 
 
@@ -816,14 +835,17 @@ static void rock(double x,double y,double z,double s,
   glRotated(angle, rx, ry, rz);
   glScaled(s,s,s);
   glColor3f(1,1,1);
+  glBindTexture(GL_TEXTURE_2D,texture[5]);
   for (ph=-90;ph<90;ph+=big_inc)
   {
     glBegin(GL_QUAD_STRIP);
     for (th=0;th<=360;th+=big_inc)
     {
+      glTexCoord2d(th/360.0,ph/180.0+0.5);
       glNormal3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
       glVertex3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
 
+      glTexCoord2d(th/360.0,(ph+big_inc)/180.0+0.5);
       glNormal3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
       glVertex3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
        
@@ -847,15 +869,31 @@ static void space_env() {
   glPushMatrix();
 
 
-
+  // close rocks
   rock(200,-300,8000-live_env , 50, 0,0,0, 0);
   rock(200,300,6000-live_env , 100, 0,0,0, 0);
   rock(-200,-300,7000-live_env , 100, 0,0,0, 0);
-  rock(-200,-300,16000-live_env , 100, 0,0,0, 0);
+  rock(-200,-300,11000-live_env , 100, 0,0,0, 0);
   rock(-500,-600,12000-live_env , 50, 0,0,0, 0);
   rock(700,-600,11000-live_env , 200, 0,0,0, 0);
-  rock(0700,800,18000-live_env , 200, 0,0,0, 0);
-  
+  rock(700,800,18000-live_env , 200, 0,0,0, 0);
+
+  // faraway rocks
+  rock(-1000,-6000,12000-live_env , 50, 0,0,0, 0);
+  rock(-1800,-600,1000-live_env , 200, 0,0,0, 0);
+  rock(2000,800,6000-live_env , 200, 0,0,0, 0);
+  rock(-2000,400,8000-live_env , 200, 0,0,0, 0);
+  rock(2000,400,5000-live_env , 200, 0,0,0, 0);
+
+  // inverse rocks
+  rock(700,-300,-8000+live_env , 50, 0,0,0, 0);
+  rock(-700,300,-4000+live_env , 200, 0,0,0, 0);
+  rock(0,-800,-12000+live_env , 100, 0,0,0, 0);
+
+  // farway inverse
+  rock(800,300,-1000+live_env , 50, 0,0,0, 0);
+  rock(-700,300,-4000+live_env , 200, 0,0,0, 0);
+  rock(0,-800,-12000+live_env , 100, 0,0,0, 0);
 
 
    glPopMatrix();
@@ -886,50 +924,7 @@ static void space_env() {
  *  Draw out the scene of the neighboorhood (houses, roads, ground)
  */
 static void drawScene(){
-  // 
-  // Lighting on the lights
-  // 
-  // float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-  // float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-  // float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
-  // // float Emission[]  = {0.3, 0.2, 0.2, 0.0};
-  // //  Light position
-  // // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
-  // glColor3f(1,1,1);
-  // // float PositionLight1[]  = {-2.5, 0 ,-2, 1.0};
-  // // ball(PositionLight1[0],PositionLight1[1],PositionLight1[2] , 0.1);
-  // // float PositionLight2[]  = {2.5, 0 ,-2, 1.0};
-  // // ball(PositionLight2[0],PositionLight2[1],PositionLight2[2] , 0.1);
-  // float PositionLight1[]  = {5, 0 ,10, 5.0};
-  // ball(PositionLight1[0],PositionLight1[1],PositionLight1[2] , 0.1);
-
-  // //  OpenGL should normalize normal vectors
-  // glEnable(GL_NORMALIZE);
-  // //  Enable lighting
-  // glEnable(GL_LIGHTING);
-  // //  Location of viewer for specular calculations
-  // glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-  // //  glColor sets ambient and diffuse color materials
-  // glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-  // glEnable(GL_COLOR_MATERIAL);
-  // //  Enable light 0
-  // glEnable(GL_LIGHT0);
-  // // glEnable(GL_LIGHT1);
-  // //  Set ambient, diffuse, specular components and position of light 0
-  // glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-  // glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-  // glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-
-  // // glLightfv(GL_LIGHT1,GL_AMBIENT ,Ambient);
-  // // glLightfv(GL_LIGHT1,GL_DIFFUSE ,Diffuse);
-  // // glLightfv(GL_LIGHT1,GL_SPECULAR,Specular);
-
-  // glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
-  // // // glLightfv(GL_LIGHT1,GL_POSITION,PositionLight2);
-
-  // 
-  // END Lighting on the lights
-  // 
+  
 
   float white[] = {1,1,1,1};
   float black[] = {0,0,0,1};
@@ -961,7 +956,7 @@ void display()
    //  Undo previous transformations
    glLoadIdentity();
 
-   // Space(3.5*dim);
+   Space(10*dim);
 
    //  Perspective - set eye position
    if (mode)
@@ -981,8 +976,9 @@ void display()
 
    //  Display parameters
    glWindowPos2i(5,5);
-   Print("Angle=%d,%d  Dim=%.1f FOV=%d Projection=%s Light=%s",
-     th,ph,dim,fov,mode?"Perpective":"Orthogonal",light?"On":"Off");
+   Print("Angle=%d,%d  Dim=%.1f FOV=%d", th,ph,dim,fov);
+   glWindowPos2i(5,25);
+   Print("Press SPACEBAR to shoot lasers! ARROW KEYS to move around!");
 
    //  Render the scene and make it visible
    ErrCheck("display");
@@ -1139,11 +1135,13 @@ int main(int argc,char* argv[])
 
 
    // Load all bmps
-   // space = LoadTexBMP("textures/space.bmp");
+   space[0] = LoadTexBMP("textures/space_tb.bmp");
+   space[1] = LoadTexBMP("textures/space_lr.bmp");
    texture[1] = LoadTexBMP("textures/body_metal.bmp");
    texture[5] = LoadTexBMP("textures/cast_iron.bmp");
    texture[6] = LoadTexBMP("textures/metal.bmp");
    texture[9] = LoadTexBMP("textures/wing.bmp");
+   texture[10]= LoadTexBMP("textures/laser.bmp");
 
    
 
