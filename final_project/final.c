@@ -110,7 +110,14 @@ static void Vertex(double th,double ph)
 //    glPopMatrix();
 // }
 
-
+// void timer(int v) {
+//   smokeoffset += .01;
+//   if (smokeoffset > 5.0) {
+//     smokeoffset -= 5.0;
+//   }
+//   glutPostRedisplay();
+//   glutTimerFunc(1000/FPS, timer, v);
+// }
 
 
 
@@ -1118,6 +1125,7 @@ int main(int argc,char* argv[])
    glutCreateWindow("Final - Tie Fighter - Edward Zhu");
    //  Set callbacks
    glutDisplayFunc(display);
+   // glutTimerFunc(100, timer, 0);
    glutReshapeFunc(reshape);
    glutSpecialFunc(special);
    glutKeyboardFunc(key);
