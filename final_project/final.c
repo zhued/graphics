@@ -46,8 +46,8 @@ float Exp=0;      //  Spot exponent
 unsigned int texture[18];
 unsigned int space;
 
-int live_env = 4000;
 int pause = 0;
+static double env_offset=8000;
 
 // Light values
 int one       =   1;  // Unit value
@@ -110,14 +110,14 @@ static void Vertex(double th,double ph)
 //    glPopMatrix();
 // }
 
-// void timer(int v) {
-//   smokeoffset += .01;
-//   if (smokeoffset > 5.0) {
-//     smokeoffset -= 5.0;
-//   }
-//   glutPostRedisplay();
-//   glutTimerFunc(1000/FPS, timer, v);
-// }
+void timer(int v) {
+  env_offset -= 50;
+  if (env_offset < -10000.0) {
+    env_offset += 18000.0;
+  }
+  glutPostRedisplay();
+  glutTimerFunc(1, timer, v);
+}
 
 
 
@@ -766,23 +766,28 @@ static void space_env() {
   glPushMatrix();
 
   int i;
+
+
+  rock(200,300,env_offset , 50);
+  rock(200,300,3000+env_offset , 50);
+
   // Builds space_env in panels for animation
-  for (i = 5000; i >= -5000; i-=1000) {
+  // for (i = 5000; i >= -5000; i-=1000) {
     // printf("%d\n", i);
   // for (i = 100; i >= -100; i-=10) {
 
-    // rock(200,300,700+i+live_env , 50);
+    // rock(200,300,i , 50);
     // rock(-250,-360,10+i+live_env , 10);
 
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-      // Floor
-    glBegin(GL_QUADS);
-    glNormal3d(0, 1, 0);
-    glTexCoord2f(0, 0); glVertex3d(-30, 0, i + live_env);
-    glTexCoord2f(1, 0); glVertex3d(30, 0, i + live_env);
-    glTexCoord2f(1, 4); glVertex3d(30, 0, i - 1000 + live_env);
-    glTexCoord2f(0, 4); glVertex3d(-30, 0, i - 1000 + live_env);
-    glEnd();
+    // glBindTexture(GL_TEXTURE_2D, texture[1]);
+    //   // Floor
+    // glBegin(GL_QUADS);
+    // glNormal3d(0, 1, 0);
+    // glTexCoord2f(0, 0); glVertex3d(-30, 0, i + live_env);
+    // glTexCoord2f(1, 0); glVertex3d(30, 0, i + live_env);
+    // glTexCoord2f(1, 4); glVertex3d(30, 0, i - 1000 + live_env);
+    // glTexCoord2f(0, 4); glVertex3d(-30, 0, i - 1000 + live_env);
+    // glEnd();
     // rock(-50,50,900+i+live_env , 10);
     // rock(-50,-50,10+i+live_env , 10);
 
@@ -790,7 +795,7 @@ static void space_env() {
 
     // TieFighter(10,50,10+i+live_env,3, 0,0,0, 0);
     // TieFighter(10,50,1000+i+live_env,3, 0,0,0, 0);
-  }
+  // }
 
 
    glPopMatrix();
@@ -972,14 +977,6 @@ void idle()
    double t = glutGet(GLUT_ELAPSED_TIME)/1000.0;
    zh = fmod(90*t,360.0);
 
-  // added live environment to make things move
-  if (!pause) {
-    if (live_env < -2000){
-       live_env = 0;
-    }
-    live_env -= 3;
-  }
-
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
 }
@@ -1125,7 +1122,7 @@ int main(int argc,char* argv[])
    glutCreateWindow("Final - Tie Fighter - Edward Zhu");
    //  Set callbacks
    glutDisplayFunc(display);
-   // glutTimerFunc(100, timer, 0);
+   glutTimerFunc(100, timer, 0);
    glutReshapeFunc(reshape);
    glutSpecialFunc(special);
    glutKeyboardFunc(key);
