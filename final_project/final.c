@@ -46,7 +46,7 @@ float Exp=0;      //  Spot exponent
 unsigned int texture[18];
 unsigned int space;
 
-int live_env = 100;
+int live_env = 4000;
 int pause = 0;
 
 // Light values
@@ -764,18 +764,18 @@ static void space_env() {
     // printf("%d\n", i);
   // for (i = 100; i >= -100; i-=10) {
 
-    rock(50,50,100+i+live_env , 50);
-    rock(50,-60,10+i+live_env , 10);
+    // rock(200,300,700+i+live_env , 50);
+    // rock(-250,-360,10+i+live_env , 10);
 
-    // glBindTexture(GL_TEXTURE_2D, texture[1]);
-    //   // Floor
-    // glBegin(GL_QUADS);
-    // glNormal3d(0, 1, 0);
-    // glTexCoord2f(0, 0); glVertex3d(-30, 0, i + live_env);
-    // glTexCoord2f(1, 0); glVertex3d(30, 0, i + live_env);
-    // glTexCoord2f(1, 4); glVertex3d(30, 0, i - 1000 + live_env);
-    // glTexCoord2f(0, 4); glVertex3d(-30, 0, i - 1000 + live_env);
-    // glEnd();
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+      // Floor
+    glBegin(GL_QUADS);
+    glNormal3d(0, 1, 0);
+    glTexCoord2f(0, 0); glVertex3d(-30, 0, i + live_env);
+    glTexCoord2f(1, 0); glVertex3d(30, 0, i + live_env);
+    glTexCoord2f(1, 4); glVertex3d(30, 0, i - 1000 + live_env);
+    glTexCoord2f(0, 4); glVertex3d(-30, 0, i - 1000 + live_env);
+    glEnd();
     // rock(-50,50,900+i+live_env , 10);
     // rock(-50,-50,10+i+live_env , 10);
 
@@ -1126,7 +1126,7 @@ int main(int argc,char* argv[])
 
    // Load all bmps
    // space = LoadTexBMP("textures/space.bmp");
-   texture[1] = LoadTexBMP("textures/TIECockpit.bmp");
+   texture[1] = LoadTexBMP("textures/body_metal.bmp");
    texture[5] = LoadTexBMP("textures/cast_iron.bmp");
    texture[6] = LoadTexBMP("textures/metal.bmp");
    texture[9] = LoadTexBMP("textures/wing.bmp");
