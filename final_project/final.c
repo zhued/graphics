@@ -2,30 +2,9 @@
  *  Tie Fighter - FINAL PROJECT - Edward Zhu
  *
  *  
- *  Key bindings:
- *  l          Toggles lighting
- *  m          Toggles light movement
- *  < or >     when light movement toggled off, it moves the light source
- *  []         Lower/rise light
- *  3          Toggle light distance (10/2)
- *  p          Toggles ortogonal/perspective projection
- *  + or -     Change field of view of perspective
- *  x          Toggle axes
- *  arrows     Change view angle
- *  PgDn/PgUp  Zoom in and out
- *  0          Reset view angle
- *  ESC        Exit
- *
- * Other options:
- *  a/A        Decrease/increase ambient light
- *  d/D        Decrease/increase diffuse light
- *  s/S        Decrease/increase specular light
- *  e/E        Decrease/increase emitted light
- *  n/N        Decrease/increase shininess
- *  1          Toggle smooth/flat shading
- *  2          Toggle local viewer mode
- *  4          Change ball increment
- *  5          Invert bottom normal
+ *  Go to the README to learn more about this project!
+ * 
+ * 
  */
 #include "CSCIx229.h"
 #include <math.h>
@@ -46,7 +25,7 @@ float Exp=0;      //  Spot exponent
 unsigned int texture[18];
 unsigned int space[2];
 int live_env = 0;
-int laser_animation = 60;
+int laser_animation = 20;
 int trigger_laser = 0;
 
 // static double env_offset=8000;
@@ -173,7 +152,7 @@ static void fire_laser() {
       laserbeam(15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
       
     } else {
-      laser_animation = 60;
+      laser_animation = 20;
       trigger_laser = 0;
     }
   }
@@ -218,57 +197,54 @@ static void Space(double D)
   glColor3f(1,1,1);
   glEnable(GL_TEXTURE_2D);
 
-
-  //  Top and bottom
-  glBindTexture(GL_TEXTURE_2D,space[0]);
-   glBegin(GL_QUADS);
-   glTexCoord2f(0,0); glVertex3f(+D,+D,-D);
-   glTexCoord2f(1,0); glVertex3f(+D,+D,+D);
-   glTexCoord2f(1,1); glVertex3f(-D,+D,+D);
-   glTexCoord2f(0,1); glVertex3f(-D,+D,-D);
-   glEnd();
-
-   glBegin(GL_QUADS);
-   glTexCoord2f(0,0); glVertex3f(-D,-D,+D);
-   glTexCoord2f(1,0); glVertex3f(+D,-D,+D);
-   glTexCoord2f(1,1); glVertex3f(+D,-D,-D);
-   glTexCoord2f(0,1); glVertex3f(-D,-D,-D);
-   glEnd();
-
   //  Sides
   glBindTexture(GL_TEXTURE_2D,space[1]);
-   glBegin(GL_QUADS);
-   glTexCoord2f(0,0); glVertex3f(-D,-D,-D);
-   glTexCoord2f(1,0); glVertex3f(+D,-D,-D);
-   glTexCoord2f(1,1); glVertex3f(+D,+D,-D);
-   glTexCoord2f(0,1); glVertex3f(-D,+D,-D);
-   glEnd();
+  glBegin(GL_QUADS);
+  glTexCoord2f(0,0); glVertex3f(-D,-D,-D);
+  glTexCoord2f(1,0); glVertex3f(+D,-D,-D);
+  glTexCoord2f(1,1); glVertex3f(+D,+D,-D);
+  glTexCoord2f(0,1); glVertex3f(-D,+D,-D);
+  glEnd();
 
-   glBegin(GL_QUADS);
-   glTexCoord2f(0,0); glVertex3f(+D,-D,-D);
-   glTexCoord2f(1,0); glVertex3f(+D,-D,+D);
-   glTexCoord2f(1,1); glVertex3f(+D,+D,+D);
-   glTexCoord2f(0,1); glVertex3f(+D,+D,-D);
-   glEnd();
+  glBegin(GL_QUADS);
+  glTexCoord2f(0,0); glVertex3f(+D,-D,-D);
+  glTexCoord2f(1,0); glVertex3f(+D,-D,+D);
+  glTexCoord2f(1,1); glVertex3f(+D,+D,+D);
+  glTexCoord2f(0,1); glVertex3f(+D,+D,-D);
+  glEnd();
 
-   glBegin(GL_QUADS);
-   glTexCoord2f(0,0); glVertex3f(+D,-D,+D);
-   glTexCoord2f(1,0); glVertex3f(-D,-D,+D);
-   glTexCoord2f(1,1); glVertex3f(-D,+D,+D);
-   glTexCoord2f(0,1); glVertex3f(+D,+D,+D);
-   glEnd();
+  glBegin(GL_QUADS);
+  glTexCoord2f(0,0); glVertex3f(+D,-D,+D);
+  glTexCoord2f(1,0); glVertex3f(-D,-D,+D);
+  glTexCoord2f(1,1); glVertex3f(-D,+D,+D);
+  glTexCoord2f(0,1); glVertex3f(+D,+D,+D);
+  glEnd();
 
-   glBegin(GL_QUADS);
-   glTexCoord2f(0,0); glVertex3f(-D,-D,+D);
-   glTexCoord2f(1,0); glVertex3f(-D,-D,-D);
-   glTexCoord2f(1,1); glVertex3f(-D,+D,-D);
-   glTexCoord2f(0,1); glVertex3f(-D,+D,+D);
-   glEnd();
+  glBegin(GL_QUADS);
+  glTexCoord2f(0,0); glVertex3f(-D,-D,+D);
+  glTexCoord2f(1,0); glVertex3f(-D,-D,-D);
+  glTexCoord2f(1,1); glVertex3f(-D,+D,-D);
+  glTexCoord2f(0,1); glVertex3f(-D,+D,+D);
+  glEnd();
+
+     // Top and bottom
+  glBindTexture(GL_TEXTURE_2D,space[1]);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0,0); glVertex3f(+D,+D,-D);
+  glTexCoord2f(1,0); glVertex3f(+D,+D,+D);
+  glTexCoord2f(1,1); glVertex3f(-D,+D,+D);
+  glTexCoord2f(0,1); glVertex3f(-D,+D,-D);
+
+  glTexCoord2f(0,0); glVertex3f(-D,-D,+D);
+  glTexCoord2f(1,0); glVertex3f(+D,-D,+D);
+  glTexCoord2f(1,1); glVertex3f(+D,-D,-D);
+  glTexCoord2f(0,1); glVertex3f(-D,-D,-D);
+  glEnd();
 
 
 
-   glDisable(GL_TEXTURE_2D);
-   glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
+  glPopMatrix();
 }
 
 
@@ -876,7 +852,7 @@ static void space_env() {
   rock(-200,-300,11000-live_env , 100, 0,0,0, 0);
   rock(-500,-600,12000-live_env , 50, 0,0,0, 0);
   rock(700,-600,11000-live_env , 200, 0,0,0, 0);
-  rock(700,800,18000-live_env , 200, 0,0,0, 0);
+  rock(700,800,15000-live_env , 200, 0,0,0, 0);
 
   // faraway rocks
   rock(-1000,-6000,12000-live_env , 50, 0,0,0, 0);
@@ -1136,7 +1112,7 @@ int main(int argc,char* argv[])
 
    // Load all bmps
    space[0] = LoadTexBMP("textures/space_tb.bmp");
-   space[1] = LoadTexBMP("textures/space_lr.bmp");
+   space[1] = LoadTexBMP("textures/neg-z.bmp");
    texture[1] = LoadTexBMP("textures/body_metal.bmp");
    texture[5] = LoadTexBMP("textures/cast_iron.bmp");
    texture[6] = LoadTexBMP("textures/metal.bmp");
