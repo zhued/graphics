@@ -1112,7 +1112,7 @@ int main(int argc,char* argv[])
 
    // Load all bmps
    space[0] = LoadTexBMP("textures/space_tb.bmp");
-   space[1] = LoadTexBMP("textures/neg-z.bmp");
+   space[1] = LoadTexBMP("textures/space_lr.bmp");
    texture[1] = LoadTexBMP("textures/body_metal.bmp");
    texture[5] = LoadTexBMP("textures/cast_iron.bmp");
    texture[6] = LoadTexBMP("textures/metal.bmp");
