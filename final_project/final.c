@@ -12,12 +12,12 @@
 int axes=1;       //  Display axes
 int mode=1;       //  Projection mode
 int move=1;       //  Move light
-int th=15;         //  Azimuth of view angle
+int th=165;         //  Azimuth of view angle
 int ph=25;         //  Elevation of view angle
 int fov=60;       //  Field of view (for perspective)
 int light=1;      //  Lighting
 double asp=1;     //  Aspect ratio
-double dim=600.0;   //  Size of world
+double dim=700.0;   //  Size of world
 
 
 float sco=180;    //  Spot cutoff angle
@@ -26,7 +26,9 @@ unsigned int texture[18];
 unsigned int space[2];
 int live_env = 0;
 int laser_animation = 20;
+int rock_separate = 0;
 int trigger_laser = 0;
+int collision = 0;
 
 // static double env_offset=8000;
 
@@ -34,11 +36,11 @@ int trigger_laser = 0;
 int one       =   1;  // Unit value
 int distance  =   10;  // Light distance
 int inc       =  10;  // Ball increment
-int big_inc   =  30;
+int big_inc   =  40;
 int smooth    =   1;  // Smooth/Flat shading
 int local     =   0;  // Local Viewer Model
 int emission  =   0;  // Emission intensity (%)
-int ambient   =  50;  // Ambient intensity (%)
+int ambient   =  40;  // Ambient intensity (%)
 int diffuse   = 100;  // Diffuse intensity (%)
 int specular  =   0;  // Specular intensity (%)
 int shininess =   0;  // Shininess (power of two)
@@ -77,111 +79,7 @@ static void Vertex(double th,double ph)
    glVertex3d(Sin(th)*Cos(ph) , Sin(ph) , Cos(th)*Cos(ph));
 }
 
-// void timer(int v) {
-//   env_offset -= 50;
-//   if (env_offset < -10000.0) {
-//     env_offset += 18000.0;
-//   }
-//   glutPostRedisplay();
-//   glutTimerFunc(1, timer, v);
-// }
 
-
-
-
-
-
-
-
-static void laserbeam(double x,double y,double z,double s, 
-                double rx, double ry, double rz, double angle)
-{
-  int th;
-  //  Save transformation
-  glPushMatrix();
-  //  Offset, scale and rotate
-  glTranslated(x,y,z);
-  glRotated(angle, rx, ry, rz);
-  glScaled(s,s,s);
-  glColor3f(0,0,1);
-
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, texture[10]);
-  glBegin(GL_QUAD_STRIP);
-  for (th = 0; th <= 360; th += 5)
-  {
-    glColor3d(0.5, 0.5, 0.5);
-    glNormal3d(Cos(th), Sin(th), 0);
-    glTexCoord2f(0,th*0.0123);glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 0);
-    glTexCoord2f(1,th*0.0123);glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 50);
-  }
-  glEnd();
-  glDisable(GL_TEXTURE_2D);
-  
-  //  Undo transofrmations
-  glPopMatrix();
-}
-
-
-/*
-*   FIRE ZEE LAZARS
-*     THIS TOOK WAY TOO LONG TO FIGURE OUT HOW TO IMPLEMENT
-*/
-static void fire_laser() {
-
-  // 
-  // Lighting on the lights
-  // 
-  float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-  float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-  float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
-  //  Light position
-  // float Position[]  = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
-  glColor3f(1,1,1);
-  
-
-
-  // Save matrix and adjust position
-  glPushMatrix();
-
-  if (trigger_laser == 1)
-  {
-    if(laser_animation < 3000){
-      laser_animation += 100;
-      laserbeam(-15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
-      laserbeam(15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
-      
-    } else {
-      laser_animation = 20;
-      trigger_laser = 0;
-    }
-  }
-  float PositionLight1[] = {0 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),1500-(laser_animation/2), 5.0}; 
-  glPopMatrix();
-
-
-
-  //  OpenGL should normalize normal vectors
-  glEnable(GL_NORMALIZE);
-  //  Enable lighting
-  glEnable(GL_LIGHTING);
-  //  Location of viewer for specular calculations
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-  //  glColor sets ambient and diffuse color materials
-  glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-  glEnable(GL_COLOR_MATERIAL);
-  //  Enable light 0
-  glEnable(GL_LIGHT0);
-  // glEnable(GL_LIGHT1);
-  //  Set ambient, diffuse, specular components and position of light 0
-  glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-  glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-  glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-
-  glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
-  
-
-}
 
 
 
@@ -193,7 +91,7 @@ static void fire_laser() {
 static void Space(double D)
 {
   glPushMatrix();
-  glRotated(180, 0, 1, 0);
+  glRotated(90, 0, 1, 0);
   glColor3f(1,1,1);
   glEnable(GL_TEXTURE_2D);
 
@@ -797,21 +695,109 @@ static void TieFighter(double x,double y,double z,double s,
 
 
 
-
-
-
-static void rock(double x,double y,double z,double s, 
+static void laserbeam(double x,double y,double z,double s, 
                 double rx, double ry, double rz, double angle)
 {
-  int th,ph;
+  int th;
   //  Save transformation
   glPushMatrix();
   //  Offset, scale and rotate
   glTranslated(x,y,z);
   glRotated(angle, rx, ry, rz);
   glScaled(s,s,s);
+  glColor3f(0,0,1);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texture[10]);
+  glBegin(GL_QUAD_STRIP);
+  for (th = 0; th <= 360; th += 5)
+  {
+    glColor3d(0.5, 0.5, 0.5);
+    glNormal3d(Cos(th), Sin(th), 0);
+    glTexCoord2f(0,th*0.0123);glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 0);
+    glTexCoord2f(1,th*0.0123);glVertex3d(0.5 * Cos(th), 0.5 * Sin(th), 50);
+  }
+  glEnd();
+  glDisable(GL_TEXTURE_2D);
+  
+  //  Undo transofrmations
+  glPopMatrix();
+}
+
+
+/*
+*   FIRE ZEE LAZARS
+*     THIS TOOK WAY TOO LONG TO FIGURE OUT HOW TO IMPLEMENT
+*/
+static void fire_laser() {
+ 
+
   glColor3f(1,1,1);
-  glBindTexture(GL_TEXTURE_2D,texture[5]);
+    // Save matrix and adjust position
+  glPushMatrix();
+
+  if (trigger_laser == 1)
+  {
+    if(laser_animation < 3000){
+      laser_animation += 100;
+      laserbeam(-15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
+      laserbeam(15 + 50*Cos(zh), -25 + 50*Sin(zh) * Cos(zh),laser_animation , 10, 0,0,0, 0); 
+      if (laser_animation == 1520 && collision == 0)
+      {
+        collision = 1;
+        laser_animation = 20;
+        trigger_laser = 0;
+      }
+    } else {
+      laser_animation = 20;
+      trigger_laser = 0;
+    }
+  }
+  glPopMatrix();
+
+
+
+}
+
+static void explosion(double x,double y,double z,double r)
+{
+   int th,ph;
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glScaled(r,r,r);
+   //  White ball
+   glColor3f(1,1,1);
+   glBindTexture(GL_TEXTURE_2D,texture[2]);
+   //  Bands of latitude
+   for (ph=-90;ph<90;ph+=big_inc)
+   {
+      glBegin(GL_QUAD_STRIP);
+      for (th=0;th<=360;th+=2*big_inc)
+      {
+        glTexCoord2d(th/180.0,ph/90.0+0.5); 
+        Vertex(th,ph);
+
+        glTexCoord2d(th/180.0,(ph+big_inc)/90.0+0.5);
+        Vertex(th,ph+big_inc);
+      }
+      glEnd();
+   }
+   //  Undo transofrmations
+   glPopMatrix();
+}
+
+static void rock_texture_c(double x,double y,double z,double s, 
+                double rx, double ry, double rz, double angle){
+  int th,ph;
+  glPushMatrix();
+  //  Offset, scale and rotate
+  glTranslated(x,y,z);
+  glRotated(angle, rx, ry, rz);
+  glScaled(s,s,s);
+  glColor3f(1,1,1);
+
+  // glColor3f(1,0,0);
   for (ph=-90;ph<90;ph+=big_inc)
   {
     glBegin(GL_QUAD_STRIP);
@@ -828,10 +814,193 @@ static void rock(double x,double y,double z,double s,
     }
     glEnd();
   }
+  glPopMatrix();
+}
+
+static void rock_texture_s(double x,double y,double z,double s, 
+                double rx, double ry, double rz, double angle){
+  glPushMatrix();
+  //  Offset, scale and rotate
+  glTranslated(x,y,z);
+  glRotated(angle, rx, ry, rz);
+  glScaled(s,s,s);
+
+  glColor3f(1,1,1);
+  glBegin(GL_QUADS);
+  glNormal3f( 0, 0, 1);
+  glTexCoord2f(0.0,0.0); glVertex3f(-0.1,-0.1, 0.1);
+  glTexCoord2f(0.1,0.0); glVertex3f(+0.1,-0.1, 0.1);
+  glTexCoord2f(0.1,0.1); glVertex3f(+0.1,+0.1, 0.1);
+  glTexCoord2f(0.0,0.1); glVertex3f(-0.1,+0.1, 0.1);
+  glEnd();
+  //  Back
+  // glColor3f(0,0,1);
+  glBegin(GL_QUADS);
+  glNormal3f( 0, 0,-1);
+  glTexCoord2f(0,0); glVertex3f(+1,-1,-1);
+  glTexCoord2f(1,0); glVertex3f(-1,-1,-1);
+  glTexCoord2f(1,1); glVertex3f(-1,+1,-1);
+  glTexCoord2f(0,1); glVertex3f(+1,+1,-1);
+  glEnd();
+  //  Right
+  // glColor3f(1,1,0);
+  glBegin(GL_QUADS);
+  glNormal3f(+1, 0, 0);
+  glTexCoord2f(0,0); glVertex3f(+1,-1,+1);
+  glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+  glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+  glTexCoord2f(0,1); glVertex3f(+1,+1,+1);
+  glEnd();
+  //  Left
+  // glColor3f(0,1,0);
+  glBegin(GL_QUADS);
+  glNormal3f(-1, 0, 0);
+  glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+  glTexCoord2f(1,0); glVertex3f(-1,-1,+1);
+  glTexCoord2f(1,1); glVertex3f(-1,+1,+1);
+  glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+  glEnd();
+  //  Top
+  // glColor3f(0,1,1);
+  glBegin(GL_QUADS);
+  glNormal3f( 0,+1, 0);
+  glTexCoord2f(0,0); glVertex3f(-1,+1,+1);
+  glTexCoord2f(1,0); glVertex3f(+1,+1,+1);
+  glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+  glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+  glEnd();
+  //  Bottom
+  // glColor3f(1,0,1);
+  glBegin(GL_QUADS);
+  glNormal3f( 0,-1, 0);
+  glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+  glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+  glTexCoord2f(1,1); glVertex3f(+1,-1,+1);
+  glTexCoord2f(0,1); glVertex3f(-1,-1,+1);
+  glEnd();
+  glPopMatrix();
+}
+
+static void rock(double x,double y,double z,double s, 
+                double rx, double ry, double rz, double angle)
+{
+  int th,ph;
+  //  Save transformation
+  glPushMatrix();
+  //  Offset, scale and rotate
+  glTranslated(x,y,z);
+  glRotated(angle, rx, ry, rz);
+  glScaled(s,s,s);
+  // glColor3f(1,1,1);
+  glBindTexture(GL_TEXTURE_2D,texture[5]);
+
+  // add texture to circle
+  rock_texture_s(0.5,0.5,0, 0.25, 0,0,0, 0);
+  rock_texture_s(-0.5,0.5,0, 0.25, 0,0,0, 0);
+  rock_texture_s(0.5,-0.5,0, 0.25, 0,0,0, 0);
+  rock_texture_s(-0.5,-0.5,0.4, 0.25, 0,0,0, 0);
+
+  rock_texture_c(0.5,0.4,0, 0.5, 0,0,0, 0);
+  rock_texture_c(0.7,0.1,0, 0.5, 0,0,0, 0);
+  rock_texture_c(-0.4,-0.4,-0.5, 0.5, 0,0,0, 0);
+  rock_texture_c(0.4,-0.4,-0.3, 0.5, 0,0,0, 0);
+  rock_texture_c(0.0,0.5,-0.6, 0.5, 0,0,0, 0);
+  rock_texture_c(0.0,0.5,0.6, 0.5, 0,0,0, 0);
+  rock_texture_c(-0.7,-0.1,0.2, 0.4, 0,0,0, 0);
+
+  for (ph=-90;ph<90;ph+=big_inc)
+  {
+    glBegin(GL_QUAD_STRIP);
+    for (th=0;th<=360;th+=big_inc)
+    {
+      glTexCoord2d(th/360.0,ph/180.0+0.5);
+      glNormal3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+      glVertex3d(Sin(th)*Cos(ph), Cos(th)*Cos(ph), Sin(ph));
+
+      glTexCoord2d(th/360.0,(ph+big_inc)/180.0+0.5);
+      glNormal3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
+      glVertex3d(Sin(th)*Cos(ph+big_inc), Cos(th)*Cos(ph+big_inc), Sin(ph+big_inc));
+       
+    }
+    glEnd();
+  }
+
   //  Undo transofrmations
   glPopMatrix();
 }
 
+/*
+*   EXPLODE ZEE ROCKKKKKK
+*/
+static void rock_explode() {
+  glEnable(GL_TEXTURE_2D);
+  // Save matrix and adjust position
+  glPushMatrix();
+
+  // rock that will explode
+  if (collision == 1)
+  {
+    if (rock_separate < 3000)
+    {
+      rock_separate += 20;
+      if (rock_separate < 1200)
+      {
+        explosion(0,0,1400-rock_separate/2,                   0+rock_separate/10);
+        explosion(-rock_separate/5,0,1500-rock_separate/2,                   0+rock_separate/5);
+        explosion(rock_separate/5,rock_separate/5,1600-rock_separate/2,      0+rock_separate/5);
+        explosion(0,rock_separate/5,1500-rock_separate/2,                    0+rock_separate/5);
+        explosion(0,-rock_separate/5,1500-rock_separate/2 ,                   0+rock_separate/5);
+        explosion(-rock_separate/5,rock_separate/5,1700-rock_separate/2 ,    0+rock_separate/5);
+        explosion(rock_separate/5,-rock_separate/10,1400-rock_separate/2 ,    0+rock_separate/5);
+      
+        // 
+        // Lighting on the lights
+        // 
+        float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+        float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+        float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+
+        float PositionLight1[] = {0,0,1500, 1.0}; 
+        //  OpenGL should normalize normal vectors
+        glEnable(GL_NORMALIZE);
+        //  Enable lighting
+        glEnable(GL_LIGHTING);
+        //  Location of viewer for specular calculations
+        glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+        //  glColor sets ambient and diffuse color materials
+        glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+        glEnable(GL_COLOR_MATERIAL);
+        //  Enable light 0
+        glEnable(GL_LIGHT0);
+        // glEnable(GL_LIGHT1);
+        //  Set ambient, diffuse, specular components and position of light 0
+        glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+        glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
+        glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+
+        glLightfv(GL_LIGHT0,GL_POSITION,PositionLight1);
+      } else {
+        glDisable(GL_LIGHTING);
+      }
+      
+      rock(rock_separate,       rock_separate,    -2*rock_separate+1500,  100, 0,0,0, 0);
+      rock(-0.50*rock_separate, 2*rock_separate,  1500,                   50, 0,0,0, 0);
+      rock(rock_separate,       -rock_separate,   2*rock_separate+1500,   40, 0,0,0, 0);
+      rock(-0.25*rock_separate, -rock_separate,   1500,                   80, 0,0,0, 0);
+      rock(-1*rock_separate,    0.1*-rock_separate,1500,                  60, 0,0,0, 0);
+      rock(-0.25*rock_separate, -rock_separate,   -3*rock_separate+1500,  20, 0,0,0, 0);
+      rock(-0.25*rock_separate, 0.4*rock_separate,   rock_separate+1500,  20, 0,0,0, 0);
+    } else {
+      collision = 0;
+      rock_separate = 0;
+    }
+  } else {
+    
+    rock(0 - 100*Sin(zh) * Cos(zh), 0 + 100*Cos(zh), 1500 ,150,   0,0,1,  5*Sin(zh));
+  }
+  glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
+}
 
 
 /*
@@ -844,37 +1013,36 @@ static void space_env() {
   // Save matrix and adjust position
   glPushMatrix();
 
-
   // close rocks
-  rock(200,-300,8000-live_env , 50, 0,0,0, 0);
-  rock(200,300,6000-live_env , 100, 0,0,0, 0);
-  rock(-200,-300,7000-live_env , 100, 0,0,0, 0);
-  rock(-200,-300,11000-live_env , 100, 0,0,0, 0);
+  rock(400,-300,8000-live_env , 50, 0,0,0, 90);
+  rock(300,300,6000-live_env , 100, 0,0,0, 90);
+  rock(-300,-300,7000-live_env , 100, 0,0,0, 0);
+  rock(-300,-300,11000-live_env , 100, 0,0,0, 0);
   rock(-500,-600,12000-live_env , 50, 0,0,0, 0);
-  rock(700,-600,11000-live_env , 200, 0,0,0, 0);
-  rock(700,800,15000-live_env , 200, 0,0,0, 0);
+  rock(700,-600,11000-live_env , 200, 0,0,0, 90);
+  rock(700,800,15000-live_env , 200, 0,0,0, 90);
 
   // faraway rocks
   rock(-1000,-6000,12000-live_env , 50, 0,0,0, 0);
-  rock(-1800,-600,1000-live_env , 200, 0,0,0, 0);
+  rock(-1800,-600,1000-live_env , 200, 0,0,0, 90);
   rock(2000,800,6000-live_env , 200, 0,0,0, 0);
-  rock(-2000,400,8000-live_env , 200, 0,0,0, 0);
+  rock(-2000,400,8000-live_env , 200, 0,0,0, 90);
   rock(2000,400,5000-live_env , 200, 0,0,0, 0);
 
   // inverse rocks
   rock(700,-300,-8000+live_env , 50, 0,0,0, 0);
-  rock(-700,300,-4000+live_env , 200, 0,0,0, 0);
+  rock(-700,300,-4000+live_env , 200, 0,0,0, 180);
   rock(0,-800,-12000+live_env , 100, 0,0,0, 0);
 
   // farway inverse
-  rock(800,300,-1000+live_env , 50, 0,0,0, 0);
+  rock(800,300,-1000+live_env , 50, 0,0,0, 90);
   rock(-700,300,-4000+live_env , 200, 0,0,0, 0);
   rock(0,-800,-12000+live_env , 100, 0,0,0, 0);
 
 
-   glPopMatrix();
+  glPopMatrix();
 
-   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_2D);
 
 }
 
@@ -914,8 +1082,9 @@ static void drawScene(){
   // TieFighter(0,0,0,3, 0,0,0, 0);
   TieFighter(0 + 50*Cos(zh), 0 + 50*Sin(zh) * Cos(zh),0,50,   0,0,1,  5*Sin(zh));
 
-
+  rock_explode();
   fire_laser();
+  
 
 }
 
@@ -1095,36 +1264,38 @@ void reshape(int width,int height)
  */
 int main(int argc,char* argv[])
 {
-   //  Initialize GLUT
-   glutInit(&argc,argv);
-   //  Request double buffered, true color window with Z buffering at 600x600
-   glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-   glutInitWindowSize(700,700);
-   glutCreateWindow("Final - Tie Fighter - Edward Zhu");
-   //  Set callbacks
-   glutDisplayFunc(display);
-   // glutTimerFunc(100, timer, 0);
-   glutReshapeFunc(reshape);
-   glutSpecialFunc(special);
-   glutKeyboardFunc(key);
-   glutIdleFunc(idle);
+  //  Initialize GLUT
+  glutInit(&argc,argv);
+  //  Request double buffered, true color window with Z buffering at 600x600
+  glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+  glutInitWindowSize(800,700);
+  glutCreateWindow("Final - Tie Fighter - Edward Zhu");
+  //  Set callbacks
+  glutDisplayFunc(display);
+  // glutTimerFunc(100, timer, 0);
+  glutReshapeFunc(reshape);
+  glutSpecialFunc(special);
+  glutKeyboardFunc(key);
+  glutIdleFunc(idle);
 
 
-   // Load all bmps
-   space[0] = LoadTexBMP("textures/space_tb.bmp");
-   space[1] = LoadTexBMP("textures/space_lr.bmp");
-   texture[1] = LoadTexBMP("textures/body_metal.bmp");
-   texture[5] = LoadTexBMP("textures/cast_iron.bmp");
-   texture[6] = LoadTexBMP("textures/metal.bmp");
-   texture[9] = LoadTexBMP("textures/wing.bmp");
-   texture[10]= LoadTexBMP("textures/laser.bmp");
+  // Load all bmps
+  space[0] = LoadTexBMP("textures/space_tb.bmp");
+  space[1] = LoadTexBMP("textures/space_lr.bmp");
+
+  texture[1] = LoadTexBMP("textures/body_metal.bmp");
+  texture[2] = LoadTexBMP("textures/fire.bmp");
+  texture[5] = LoadTexBMP("textures/cast_iron.bmp");
+  texture[6] = LoadTexBMP("textures/metal.bmp");
+  texture[9] = LoadTexBMP("textures/wing.bmp");
+  texture[10]= LoadTexBMP("textures/laser.bmp");
 
    
 
 
 
-   //  Pass control to GLUT so it can interact with the user
-   ErrCheck("init");
-   glutMainLoop();
-   return 0;
+  //  Pass control to GLUT so it can interact with the user
+  ErrCheck("init");
+  glutMainLoop();
+  return 0;
 }
